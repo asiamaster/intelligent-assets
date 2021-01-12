@@ -719,7 +719,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			// 非入库单客户缴费,视为代缴
 			if (!order.getTradeCustomerId().equals(stockIn.getCustomerId())) {
 				stockInPrintDto.setCardNo(order.getTradeCardNo()+"(代缴)");
-				stockInPrintDto.setProxyPayer(order.getCustomerName());
+				stockInPrintDto.setProxyPayer(order.getTradeCustomerName());
 			}
 		}
 		//详情
@@ -750,15 +750,14 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
-		stockInPrintDto.setStockInDate(stockIn.getStockInDate());
-		stockInPrintDto.setExpireDate(stockIn.getExpireDate());
+		stockInPrintDto.setStockInDate(stockIn.getStockInDate().toLocalDate());
+		stockInPrintDto.setExpireDate(stockIn.getExpireDate().toLocalDate());
 
 		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
 		printDataDto.setItem(stockInPrintDto);
 		return printDataDto;	
 	}
-	
 	
 	@Override
 	public PrintDataDto<StockInPrintDto> receiptRefundData(RefundOrder refundOrder, String reprint) {
@@ -813,8 +812,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
-		stockInPrintDto.setStockInDate(stockIn.getStockInDate());
-		stockInPrintDto.setExpireDate(stockIn.getExpireDate());
+		stockInPrintDto.setStockInDate(stockIn.getStockInDate().toLocalDate());
+		stockInPrintDto.setExpireDate(stockIn.getExpireDate().toLocalDate());
 
 
 		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();

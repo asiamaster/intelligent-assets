@@ -109,6 +109,8 @@ function initDetailItem(stockDetail) {
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("chargeItem-version",chargeItem.version);
 	}
 	weightItems.set(itemIndex+"",stockDetail.stockWeighmanRecord);
+	
+	
 	// 子单数据加载对应区域列表
 	changeDistrict(itemIndex,'0',stockDetail.parentDistrictId,'one','${stockIn.departmentId!}');
 	changeDistrict(itemIndex,stockDetail.parentDistrictId,
@@ -211,7 +213,8 @@ function buildFormData() {
 		let businessCharge = {};
 		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 		businessCharge.chargeItemName=$(this).attr("chargeItem");
-		businessCharge.amount=parseFloat($(this).val())*100;
+
+		businessCharge.amount=new Number($(this).val()*100).toFixed(0);
 		if($(this).attr("item-id") != ""){
 			businessCharge.id=$(this).attr("item-id");
 			businessCharge.version=$(this).attr("chargeItem-version");

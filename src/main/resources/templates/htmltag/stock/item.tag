@@ -137,6 +137,7 @@
 							<input id="weight_{{index}}" type="number" class="form-control number_change get-cost"
 							 name="weight" value="{{stockDetail.weight}}" range="0 999999999" required readonly/>
 							 <button type="button" class="btn btn-secondary px-5 weight" onclick = "openWeightUpdateHandler({{index}})">连接地磅</button>
+
 						</div>
 					</div>
 					<div class="form-group col-4">
