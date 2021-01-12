@@ -46,7 +46,7 @@
             <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
             <div class="form-group col">
                 <label for="typeCode" _log >所属区域<i class="red">*</i></label>
-                <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId" _firstDistrictId="${depositOrder.firstDistrictId!}" _secondDistrictId="${depositOrder.secondDistrictId!}"  _isRequiredFirst="true"></#js_district>
+                <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId" _firstDistrictIdValue="${depositOrder.firstDistrictId!}" _secondDistrictIdValue="${depositOrder.secondDistrictId!}"  _isRequiredFirst="true"></#js_district>
             </div>
             <%}%>
             <div class="form-group col">

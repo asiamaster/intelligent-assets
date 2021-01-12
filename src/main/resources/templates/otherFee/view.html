@@ -23,16 +23,9 @@
 
                 <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
                 <div class="form-group col">
-                    <label for="">所属区域</label>
-                    <div class="input-group">
-                        <select class="form-control" id="firstDistrictId" name="firstDistrictId" disabled>
-                            <option value="${meter.firstDistrictId!}">${firstDistrictName!}</option>
-                        </select>
-                        <select class="form-control" id="secondDistrictId" name="secondDistrictId" disabled>
-                            <option value="${meter.secondDistrictId!}">${secondDistrictName!}</option>
-                        </select>
-                    </div>
-                </div>
+                    <label for="">所属区域</label>${otherFee.firstDistrictName!}
+                    <#js_district _firstDistrictIdValue="${otherFee.firstDistrictId!}"  _secondDistrictIdValue="${otherFee.secondDistrictId!}"  _firstDistrictTextValue="${otherFee.firstDistrictName!}" _secondDistrictTextValue="${otherFee.secondDistrictName!}"></#js_district>
+            </div>
                 <%}%>
 
                 <div class="form-group col">
@@ -121,5 +114,3 @@
 
 </#bs4Body>
 
-<#js_customerAutocompleteJs/>
-<#depositOrder_addJs />

@@ -72,6 +72,7 @@ import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
 import com.dili.ss.exception.BusinessException;
+import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
@@ -412,6 +413,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 				if(record != null) {
 					recordJson = (JSONObject) JSON.toJSON(record);
 					recordJson.put("image",JSON.parse(record.getImages()));
+					if(record.getGrossWeightDate() != null) {
+						recordJson.put("grossWeightDate",DateUtils.format(record.getGrossWeightDate(), "yyyy-MM-dd HH:mm:ss"));
+					}
+					if(record.getTareWeightDate() != null) {
+						recordJson.put("tareWeightDate",DateUtils.format(record.getTareWeightDate(), "yyyy-MM-dd HH:mm:ss"));
+					}
 				}
 				jsonObject.put("stockWeighmanRecord", recordJson);
 			}
@@ -427,7 +434,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		// 结算单信息
 		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()
 				&& stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
-			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getCode()));
+			stockInDto.setSettleOrder(settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));
 		}
 		BusinessChargeItem condtion = new BusinessChargeItem();
 		condtion.setBusinessCode(stockInDto.getCode());
@@ -664,10 +671,15 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		domain.setPayDate(LocalDateTime.now());
 		domain.setTollman(settleOrder.getOperatorName());
 		domain.setTollmanId(settleOrder.getOperatorId());
-		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		// 入库 库存
 		List<StockInDetail> stockInDetails = getStockInDetailsByStockCode(code);
 		stockService.inStock(stockInDetails, stockIn);
+		// 判断是否过期
+		if(stockIn.getExpireDate().isBefore(LocalDateTime.now())) {
+			updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.EXPIRE);
+		}else {
+			updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
+		}
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 	}
 
@@ -707,7 +719,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			// 非入库单客户缴费,视为代缴
 			if (!order.getTradeCustomerId().equals(stockIn.getCustomerId())) {
 				stockInPrintDto.setCardNo(order.getTradeCardNo()+"(代缴)");
-				stockInPrintDto.setProxyPayer(order.getCustomerName());
+				stockInPrintDto.setProxyPayer(order.getTradeCustomerName());
 			}
 		}
 		//详情
@@ -722,7 +734,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			quantity += detail.getQuantity();
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
-			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarTypePublicName())) {
+				carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			}
 			if(!StringUtils.isEmpty(detail.getCarPlate())) {
 				carPlate.append(detail.getCarPlate()).append(",");
 			}
@@ -731,20 +745,19 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
-		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
+		stockInPrintDto.setCarTypePublicCode(StringUtils.isEmpty(carTypePublicName)?"":carTypePublicName.substring(0, carTypePublicName.length()-1));
 		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
-		stockInPrintDto.setStockInDate(stockIn.getStockInDate());
-		stockInPrintDto.setExpireDate(stockIn.getExpireDate());
+		stockInPrintDto.setStockInDate(stockIn.getStockInDate().toLocalDate());
+		stockInPrintDto.setExpireDate(stockIn.getExpireDate().toLocalDate());
 
 		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.STOCKIN_ORDER.getCode());
 		printDataDto.setItem(stockInPrintDto);
 		return printDataDto;	
 	}
-	
 	
 	@Override
 	public PrintDataDto<StockInPrintDto> receiptRefundData(RefundOrder refundOrder, String reprint) {
@@ -783,7 +796,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			quantity += detail.getQuantity();
 			weight += detail.getWeight();
 			assetsCode.append(detail.getAssetsCode()).append(",");
-			carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			if(!StringUtils.isEmpty(detail.getCarTypePublicName())) {
+				carTypePublicName.append(detail.getCarTypePublicName()).append(",");
+			}
 			if(!StringUtils.isEmpty(detail.getCarPlate())) {
 				carPlate.append(detail.getCarPlate()).append(",");
 			}
@@ -792,13 +807,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setQuantity(String.valueOf(quantity));
 		stockInPrintDto.setWeight(String.valueOf(weight));
 		stockInPrintDto.setAssetsCode(assetsCode.substring(0, assetsCode.length()-1));
-		stockInPrintDto.setCarTypePublicCode(carTypePublicName.substring(0, carTypePublicName.length()-1));
+		stockInPrintDto.setCarTypePublicCode(StringUtils.isEmpty(carTypePublicName)?"":carTypePublicName.substring(0, carTypePublicName.length()-1));
 		stockInPrintDto.setCarPlate(StringUtils.isEmpty(carPlate)?"":carPlate.substring(0, carPlate.length()-1));
 		stockInPrintDto.setDistrictName(districtName.substring(0, districtName.length()-1));
 		stockInPrintDto.setUnitPrice(MoneyUtils.centToYuan(stockIn.getUnitPrice()));
 		stockInPrintDto.setStockInType(StockInTypeEnum.getStockInTypeEnum(stockIn.getType()).getName());
-		stockInPrintDto.setStockInDate(stockIn.getStockInDate());
-		stockInPrintDto.setExpireDate(stockIn.getExpireDate());
+		stockInPrintDto.setStockInDate(stockIn.getStockInDate().toLocalDate());
+		stockInPrintDto.setExpireDate(stockIn.getExpireDate().toLocalDate());
 
 
 		PrintDataDto<StockInPrintDto> printDataDto = new PrintDataDto<>();
