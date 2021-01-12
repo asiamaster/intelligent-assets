@@ -45,6 +45,7 @@ public class AssetsController {
      * @param secondDistrictId 二级区域ID
      * @param isExcludeRental 排除预设摊位（true : 查询未预设的摊位， false：查询预设摊位）
      * @param isOnlyFirstArea -- 接口默认true 只在【一级区域ID不为空 并且 二级区域ID 为空 并且 该参数的值为 true 时该条件才会生效】，即只查询该 【一级区域下的 资产，不包含该 一级下的二级区域下的资产】
+     *                        如果想查询一级下包含二级的话，需要传参数的值为【false】；
      */
     @GetMapping(value = "/searchAssets.action")
     public @ResponseBody
