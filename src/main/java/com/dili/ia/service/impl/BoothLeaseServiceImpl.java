@@ -21,8 +21,10 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.convert.Delimiter;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,18 +70,22 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
         List<AssetsRentalDto> assetsRentalDtos = assetsRentalService.listByAssetsIds(assetsIds);
         Map<Long, String> assetsRentalMap = assetsRentalDtos.stream().collect(Collectors.toMap(AssetsRentalDto::getAssetsId, AssetsRental::getBatchId));
         if (null != batchId) {
+            List<String> invalidAssetsRental = new ArrayList<>();
             assetsDTOS.forEach(o -> {
                 if (assetsRentalMap.containsKey(o.getId())) {
                     if (!batchId.equals(assetsRentalMap.get(o.getId()))) {
-                        throw new BusinessException(ResultCode.DATA_ERROR, o.getName() + "预设发生变更，请删除对应摊位后重新添加");
+                        invalidAssetsRental.add(o.getName());
                     }
                 } else {
-                    throw new BusinessException(ResultCode.DATA_ERROR, o.getName() + "预设发生变更，请删除对应摊位后重新添加");
+                    invalidAssetsRental.add(o.getName());
                 }
             });
+            if (!invalidAssetsRental.isEmpty()) {
+                throw new BusinessException(ResultCode.DATA_ERROR, invalidAssetsRental.stream().collect(Collectors.joining(",", "【", "】")) + "预设发生变更，请删除对应摊位后重新添加");
+            }
         } else {
             if (CollectionUtils.isNotEmpty(assetsRentalDtos)) {
-                throw new BusinessException(ResultCode.DATA_ERROR, assetsRentalDtos.get(0).getAssetsName() + "预设发生变更，请删除对应摊位后重新添加");
+                throw new BusinessException(ResultCode.DATA_ERROR, assetsRentalDtos.stream().map(o -> o.getAssetsName()).collect(Collectors.joining(",", "【", "】")) + "预设发生变更，请删除对应摊位后重新添加");
             }
         }
 
