@@ -497,13 +497,13 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			throw new BusinessException(ResultCode.DATA_ERROR, "退款金额不能大于总金额!");
 		}
 		// 判断库存
-		List<StockInDetail> details = getStockInDetailsByStockCode(code);
+		/*List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		for (StockInDetail stockInDetail : details) {
 			Stock stock = stockService.getStock(stockInDetail.getCategoryId(), stockInDetail.getAssetsId(), stockIn.getCustomerId());
 			if(stock.getQuantity() - stockInDetail.getQuantity() < 0) {
 				throw new BusinessException(ResultCode.DATA_ERROR, "库存件数小于作废件数,退款失败");
 			}
-		}
+		}*/
 		StockIn domain = new StockIn(userTicket);
 		updateStockIn(domain, stockIn.getCode(), stockIn.getVersion(), StockInStateEnum.SUBMITTED_REFUND);
 		

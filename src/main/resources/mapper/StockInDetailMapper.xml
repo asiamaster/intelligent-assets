@@ -43,7 +43,8 @@
                 and si.type = #{type}
             </if>
             <if test="expireDate != null">
-                and si.expire_date = #{expireDate}
+            	and si.expire_date >= date_format(now(),'%Y-%m-%d')
+                and si.expire_date &lt; #{expireDate}
             </if>
             <if test="state != null">
                 and si.state = #{state}
