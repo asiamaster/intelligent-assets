@@ -832,13 +832,22 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         }
         //wm: 触发流程消息事件
         if (StringUtils.isNotBlank(leaseOrder.getBizProcessInstanceId())) {
-            EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
-            eventReceivedDto.setEventName(BpmEventConstants.OBSOLETE_EVENT);
-            eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
-            BaseOutput<String> output = eventRpc.messageEventReceived(eventReceivedDto);
-            if (!output.isSuccess()) {
-                LOG.info("作废订单边界事件异常 【租赁单编号:{}】", leaseOrder.getCode());
-                throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+            //查询进行中的流程，判断当前流程是否结束，如果流程结束(订单已到期)，则不触发消息
+            BaseOutput<List<ExecutionMapping>> listBaseOutput = runtimeRpc.listExecution(leaseOrder.getBizProcessInstanceId());
+            if(!listBaseOutput.isSuccess()){
+                LOG.info("作废订单异常 【租赁单编号:{}】", leaseOrder.getCode());
+                throw new BusinessException(ResultCode.DATA_ERROR, listBaseOutput.getMessage());
+            }
+            List<ExecutionMapping> executionMappings = listBaseOutput.getData();
+            if(executionMappings != null && !executionMappings.isEmpty()) {
+                EventReceivedDto eventReceivedDto = DTOUtils.newInstance(EventReceivedDto.class);
+                eventReceivedDto.setEventName(BpmEventConstants.OBSOLETE_EVENT);
+                eventReceivedDto.setProcessInstanceId(leaseOrder.getBizProcessInstanceId());
+                BaseOutput<String> output = eventRpc.messageEventReceived(eventReceivedDto);
+                if (!output.isSuccess()) {
+                    LOG.info("作废订单边界事件异常 【租赁单编号:{}】", leaseOrder.getCode());
+                    throw new BusinessException(ResultCode.DATA_ERROR, output.getMessage());
+                }
             }
         }
         //日志上下文构建

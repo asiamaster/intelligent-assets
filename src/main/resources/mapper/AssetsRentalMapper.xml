@@ -201,7 +201,9 @@
         select
             ar.id,
             ar.batch_id,
-            ar.mch_id
+            ar.mch_id,
+            ari.assets_id,
+            ari.assets_name
         from
             assets_rental as ar
           left join

@@ -512,12 +512,15 @@
                     let depositBalances = ret.data;
                     if(depositBalances.length > 0){
                         for (let depositBalance of depositBalances){
-                            $("table select[name^='assetsId']").filter(function () {
-                                return this.value == depositBalance.assetsId;
-                            }).each(function (i) {
-                                let index = getIndex(this.id);
-                                $('#depositBalance_'+index).val(Number(depositBalance.balance).centToYuan());
-                            });
+                            if (depositBalance) {
+                                $("table select[name^='assetsId']").filter(function () {
+                                    return this.value == depositBalance.assetsId;
+                                }).each(function (i) {
+                                    let index = getIndex(this.id);
+                                    $('#depositBalance_'+index).val(Number(depositBalance.balance).centToYuan());
+                                });
+                            }
+
                         }
                     }
                 }
