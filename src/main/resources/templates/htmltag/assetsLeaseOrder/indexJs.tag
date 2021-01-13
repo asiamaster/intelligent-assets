@@ -153,7 +153,7 @@
         $.ajax({
             type: "post",
             url: "/leaseOrder/batchQueryDepositOrder.action",
-            data: {businessId:rows[0].id,bizType: $('#bizType').val()},
+            data: {businessId: rows[0].id, bizType: $('#bizType').val()},
             dataType: "json",
             success: function (ret) {
                 if(ret.success){
@@ -169,7 +169,7 @@
 
                     dia = bs4pop.dialog({
                         title: '修改租赁',
-                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&bizType=' + $('#bizType').val(),
+                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&isRenew=' + rows[0].isRenew + '&bizType=' + $('#bizType').val(),
                         isIframe : true,
                         closeBtn: true,
                         backdrop : 'static',

@@ -1,5 +1,5 @@
 <#bs4Body>
-	<div class="container-fluid" value="${type!}">
+	<div class="container-fluid" value="${type!'--'}">
 	
 		<form id="saveForm" role="form" novalidate>
 			<div class="breadcrumb">
@@ -7,18 +7,18 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="customerInfo">
 				<div class="form-group col">
-					<label for="customerName">客户名称<i class="red">*</i></label>
+					<label for="customerName">客户名称 </label>
 					<input id="customerName" type="text" class="form-control  "
-					 name="customerName" value="${stockIn.customerName!}" readonly />
+					 name="customerName" value="${stockIn.customerName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="_certificateNumber">证件号码<i class="red">*</i></label>
+					<label for="_certificateNumber">证件号码 </label>
 					<input id="customerName" type="text" class="form-control  "
-					 name="customerName" value="${stockIn.customerName!}" readonly />
+					 name="customerName" value="${stockIn.certificateNumber!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">联系电话<i class="red">*</i></label> <input id="customerCellphone" type="text" class="form-control  "
-					 name="customerCellphone" value="${stockIn.customerCellphone!}" readonly />
+					<label for="">联系电话 </label> <input id="customerCellphone" type="text" class="form-control  "
+					 name="customerCellphone" value="${stockIn.customerCellphone!'--'}" readonly />
 				</div>
 			</div>
 			<div class="breadcrumb">
@@ -26,34 +26,39 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="stockDetailInfo">
 				<div class="form-group col">
-					<label for="">接车单号<i class="red">*</i></label>
+					<label for="">接车单号 </label>
 					<input id=pickupNumber type="text" class="form-control  "
-					 name="pickupNumber" value="${stockInDetail.pickupNumber!}" readonly />
+					 name="pickupNumber" value="${stockInDetail.pickupNumber!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">车型<i class="red">*</i></label>
+					<label for="">车型 </label>
 					<input id="carTypePublicCode" type="text" class="form-control  "
-					 name="carTypePublicCode" value="${stockInDetail.carTypePublicCode!}" readonly />
+					 name="carTypePublicCode" value="${stockInDetail.carTypePublicName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">车牌号<i class="red">*</i></label> <input id="carPlate" type="text" class="form-control  "
-					 name="carPlate" value="${stockInDetail.carPlate!}" readonly />
+					<label for="">车牌号 </label> <input id="carPlate" type="text" class="form-control  "
+					 name="carPlate" value="${stockInDetail.carPlate!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">冷库编号<i class="red">*</i></label> <input id="assetsId" type="text" class="form-control  "
-					 name="assetsId" value="${stockInDetail.assetsId!}" readonly />
+					<label for="">冷库编号 </label> <input id="assetsId" type="text" class="form-control  "
+					 name="assetsId" value="${stockInDetail.assetsCode!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库件数<i class="red">*</i></label> <input id="quantity" type="text" class="form-control  "
-					 name="quantity" value="${stockInDetail.quantity!}" readonly />
+					<label for="">入库件数 </label> <input id="quantity" type="text" class="form-control  "
+					 name="quantity" value="${stockInDetail.quantity!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">货物净重(公斤)<i class="red">*</i></label> <input id="weight" type="text" class="form-control  "
-					 name="weight" value="${stockInDetail.weight!}" readonly />
+					<label for="">货物净重(公斤) </label> <input id="weight" type="text" class="form-control  "
+					 name="weight" value="${stockInDetail.weight!'--'}" readonly />
 				</div>
-				<div class="form-group col">
-					<label for="">备注<i class="red">*</i></label> <input id="notes" type="text" class="form-control  "
-					 name="notes" value="${stockInDetail.notes!}" readonly />
+				<div class="form-group col-12">
+					<label for="">备注 </label>
+					<textarea readonly="readonly" class="form-control" id="refundReason" name="notes" rows="2" maxlength="100" required>
+					${stockInDetail.notes!}
+					</textarea>
+					
+					
+					
 				</div>
 			</div>
 			<div class="breadcrumb">
@@ -62,47 +67,57 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="baseInfo">
 				<div class="form-group col">
-					<label for="">入库单号<i class="red">*</i></label> <input id="code" type="text" class="form-control  "
-					 name="code" value="${stockIn.code!}" readonly />
+					<label for="">入库单号 </label> <input id="code" type="text" class="form-control  "
+					 name="code" value="${stockIn.code!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库类型<i class="red">*</i></label> <input id="code" type="text" class="form-control  "
+					<label for="">入库类型 </label> <input id="code" type="text" class="form-control  "
 					 name="type" value="${@com.dili.ia.glossary.StockInTypeEnum.getStockInTypeEnum(stockIn.type).getName()}"  readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">操作员<i class="red">*</i></label> <input id="operatorName" type="text" class="form-control  "
-					 name="operatorName" value="${stockIn.operatorName!}" readonly />
+					<label for="">操作员 </label> <input id="operatorName" type="text" class="form-control  "
+					 name="operatorName" value="${stockIn.operatorName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">所属部门<i class="red">*</i></label> <input id="departmentName" type="text" class="form-control  "
-					 name="departmentName" value="${stockIn.departmentName!}" readonly />
+					<label for="">所属部门 </label> <input id="departmentName" type="text" class="form-control  "
+					 name="departmentName" value="${stockIn.departmentName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">货物品类<i class="red">*</i></label> <input id="categoryName" type="text" class="form-control  "
-					 name="categoryName" value="${stockIn.categoryName!}" readonly />
+					<label for="">货物品类 </label> <input id="categoryName" type="text" class="form-control  "
+					 name="categoryName" value="${stockIn.categoryName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">产地<i class="red">*</i></label> <input id="origin" type="text" class="form-control  "
-					 name="origin" value="${stockIn.origin!}" readonly />
+					<label for="">产地 </label> <input id="origin" type="text" class="form-control  "
+					 name="origin" value="${stockIn.originPath!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">总件数<i class="red">*</i></label> <input id="quantity" type="text" class="form-control  "
-					 name="quantity" value="${stockIn.quantity!}" readonly />
+					<label for="">总件数 </label> <input id="quantity" type="text" class="form-control  "
+					 name="quantity" value="${stockIn.quantity!'--'}" readonly />
+				</div>
+				<%if(stockIn.type==2) {%>
+					<div class="form-group col-3">
+						<label for="uom" >计价单位:</label> 
+						<input id="uom" name="uom" class="form-control" readonly="readonly" required/>
+					</div>
+				<%}%>
+				<div class="form-group col">
+					<label for="">单价 </label> <input  type="text" class="form-control  "
+					 name="weight" value="<#centToYuan value='${stockIn.unitPrice!}'/>" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">总净重(公斤)<i class="red">*</i></label> <input id="weight" type="text" class="form-control  "
-					 name="weight" value="${stockIn.weight!}" readonly />
+					<label for="">总净重(公斤) </label> <input id="weight" type="text" class="form-control  "
+					 name="weight" value="${stockIn.weight!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库总额(元)<i class="red">*</i></label> <input id="amount" type="text" class="form-control  "
-					 name="amount" value="${stockIn.amount!}" readonly />
+					<label for="">入库总额(元) </label> <input id="amount" type="text" class="form-control  "
+					 name="amount" value="<#centToYuan value='${stockIn.amount!}'/>" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">入库日期<i class="red">*</i></label> <input id="stockInDate" type="text" class="form-control  "
+					<label for="">入库日期 </label> <input id="stockInDate" type="text" class="form-control  "
 					 name="stockInDate" value="${stockIn.stockInDate!,localDateTimeFormat='yyyy-MM-dd'}" data-provider="dateProvider" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">到期日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">到期日期 </label> <input id="expireDate" type="text" class="form-control  "
 					 name="expireDate" value="${stockIn.expireDate!,localDateTimeFormat='yyyy-MM-dd'}" readonly />
 				</div>
 			</div>
@@ -112,23 +127,42 @@
 			</div>
 			<div class="row row-cols-4 collapse show" id="payInfo">
 				<div class="form-group col">
-					<label for="">结算单号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">结算单号 </label> <input id="expireDate" type="text" class="form-control  "
 					 name="expireDate" value="${settleOrder.code!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">缴费日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
-					 name="expireDate" value="${settleOrder.operateTime!'--'}" readonly />
+					<label for="">缴费日期 </label>
+					<%if(settleOrder == null || settleOrder.operateTime == null){%>
+					<input  type="text" class="form-control  "
+						 name="expireDate" value="--" readonly />
+					<%
+					}else{
+					%>
+					 <input  type="text" class="form-control  "
+					 name="expireDate" value="${settleOrder.operateTime!,localDateTimeFormat='yyyy-MM-dd HH:mm:ss'}" readonly />
+					<%}%>
+				</div>
+				
+				<div class="form-group col">
+					<label for="">缴费金额 </label> 
+					
+					<%if(settleOrder == null || settleOrder.amount == null){%>
+					<input  type="text" class="form-control  "
+						 name="expireDate" value="--" readonly />
+					<%
+					}else{
+					%>
+					<input  type="text" class="form-control  "
+						 name="expireDate" value="<#centToYuan value='${settleOrder.amount!}'/>" readonly />
+					<%}%>
+					
 				</div>
 				<div class="form-group col">
-					<label for="">缴费金额<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
-					 name="expireDate" value="${settleOrder.amount!'--'}" readonly />
+					<label for="">卡号 </label> <input id="expireDate" type="text" class="form-control  "
+					 name="expireDate" value="${settleOrder.tradeCardNo!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">卡号<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
-					 name="expireDate" value="${settleOrder.accountNumber!'--'}" readonly />
-				</div>
-				<div class="form-group col">
-					<label for="">收费员<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
+					<label for="">收费员 </label> <input id="expireDate" type="text" class="form-control  "
 					 name="expireDate" value="${settleOrder.operatorName!'--'}" readonly />
 				</div>
 				

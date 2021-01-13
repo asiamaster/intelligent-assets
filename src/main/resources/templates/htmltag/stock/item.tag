@@ -398,6 +398,7 @@ function changeAssets(index,districtId,value,level){
     	if(level == 1){
     		param = {firstDistrictId: districtId,
                 	assetsType:2
+                	//isOnlyFirstArea:true
                 	//mchId:mchId
                 }
     	}else {

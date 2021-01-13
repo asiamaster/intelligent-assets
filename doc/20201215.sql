@@ -13,6 +13,8 @@ INSERT INTO `uap`.`biz_number_rule` (`name`, `type`, `prefix`, `date_format`, `l
 
 update `dili_ia`.`assets_lease_order_item` set leases_num = number;
 ALTER TABLE `dili_ia`.`assets_lease_order`
+MODIFY COLUMN `is_renew` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否为续租 1:是 0：否' AFTER `refund_state`;
+ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `biz_type` varchar(120) NULL COMMENT '业务类型（数据字典值编码 1：摊位租赁 4：冷库租赁 5：公寓租赁）' AFTER `assets_type`;
 ALTER TABLE `dili_ia`.`assets_lease_order`
 ADD COLUMN `mch_id` bigint(20) NULL COMMENT '商户ID' AFTER `market_code`;
