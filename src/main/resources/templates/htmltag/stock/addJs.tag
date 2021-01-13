@@ -54,7 +54,8 @@ var categoryAutoCompleteOption = {
 		},
 		selectFn: function (suggestion) {
 			$("#cycle").val(suggestion.cycle);
-			getCycle($("#stockInDate").val(),suggestion.cycle)
+			getCycle($("#stockInDate").val(),suggestion.cycle);
+			getCost();
 		}}
 
 

@@ -6,66 +6,10 @@
      *
      ***/
 
-        //行索引计数器
-    let itemIndex = 0;
-
-
-    //获取table Index
-    function getIndex(str) {
-        return str.split('_')[1];
-    }
-
     //初始化刷卡
     initSwipeIdCard({
         id:'getCustomer',
     });
-
-    $('#firstDistrictId').on('change', function(){
-        $("#boothTable tbody").find("tr").each(function(){
-            $(this).find("input").each(function(t,el){
-                $(this).val('');
-            });
-        });
-    })
-
-    $('#secondDistrictId').on('change', function(){
-        $("#boothTable tbody").find("tr").each(function(){
-            $(this).find("input").each(function(t,el){
-                $(this).val('');
-            });
-        });
-    })
-
-    let assetsType = $('[name="assetsType"]').val();
-    let firstDistrictId = $('[name="firstDistrictId"]').val();
-    let secondDistrictId = $('[name="secondDistrictId"]').val();
-    var boothAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/assets/searchAssets.action',
-        onSearchStart: function (params) {
-            params['assetsType'] = $('[name="assetsType"]').val();
-            params['firstDistrictId'] = $('[name="firstDistrictId"]').val();
-            params['secondDistrictId'] = $('[name="secondDistrictId"]').val();
-            return params;
-        },
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
-                }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
-            }
-        }
-    }
     /**
      * 摊位选择事件Handler
      * */
@@ -73,46 +17,13 @@
     $(function () {
         registerMsg();
         $('#assetsId, #assetsName, #assetsNameInput').hide();
+        if(${otherFee.departmentId!}){
+            getChargeItem(${otherFee.departmentId!});
+            $('#chargeItemId').val(${otherFee.chargeItemId!});
+        }
 
     });
 
-    $('#assetsType').on('change', function(){
-        $('#assetsName-error').remove();
-        $('#assetsId, #assetsName, #assetsNameInput').val('');
-        $('#assetsName, #assetsNameInput').removeClass('d-block');
-        $('#assetsNameInput').attr('name', '');
-        if($(this).val() != 100 ) {
-            $('#assetsName').addClass('d-block');
-        } else {
-            $('#assetsNameInput').attr('name', 'assetsName').addClass('d-block');
-        }
-    })
-
-    var boothAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/assets/searchAssets.action',
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
-                }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
-            }
-        },
-        selectFn: function (suggestion) {
-            $('#assetsName').val(suggestion.name);
-            $('#assetsId').val(suggestion.id);
-        }
-    }
     //品类搜索自动完成
     var categoryAutoCompleteOption = {
         serviceUrl: '/stock/categoryCycle/searchV2.action',
@@ -191,14 +102,13 @@
         });
     }
 
-    $('#departmentId').on('change', function () {
-        let departmentId = $(this).val();
-        $('#chargeItemId').html('<option value="" selected="">-- 请选择 --</option>');
-        $('#chargeItemName').val('')
+    function getChargeItem(departmentId) {
+        $('#chargeItemId').html('<option value="">-- 请选择 --</option>')
         $.ajax({
             type: 'get',
             dataType: "json",
-            data: {departmentId: departmentId},
+            async: false,
+            data: {departmentId},
             url: '/departmentChargeItem/getChargeItemsByDepartment.action',
             success: function(res){
                 if (res.success) {
@@ -211,14 +121,16 @@
                 bs4pop.alert('远程访问失败', {type: 'error'});
             }
         })
+    }
+
+    $('#departmentId').on('change', function () {
+        let departmentId = $(this).val();
+        $('#chargeItemId').html('<option value="" selected="">-- 请选择 --</option>');
+        $('#chargeItemName').val('')
+        getChargeItem(departmentId);
     })
     $('#chargeItemId').on('change',  function () {
         $('#chargeItemName').val($(this.data('chargeItemName')))
-    })
-
-    $('#firstDistrictId, #secondDistrictId').change(function () {
-        let id  = $(this).attr('id');
-        valueDistrictName($('#'+id));
     })
 
     $('#save').on('click', bui.util.debounce(doAddOtherFeeHandler,1000,true));
