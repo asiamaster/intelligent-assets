@@ -53,6 +53,16 @@
 					<label for="">总件数 </label> <input  type="text" class="form-control  "
 					 name="quantity" value="${stockIn.quantity!}" readonly />
 				</div>
+				<%if(stockIn.type==2) {%>
+					<div class="form-group col-3">
+						<label for="uom" >计价单位:</label> 
+						<input id="uom" name="uom" class="form-control" readonly="readonly" required/>
+					</div>
+				<%}%>
+				<div class="form-group col">
+					<label for="">单价 </label> <input  type="text" class="form-control  "
+					 name="weight" value="<#centToYuan value='${stockIn.unitPrice!}'/>" readonly />
+				</div>
 				<div class="form-group col">
 					<label for="">总净重(公斤) </label> <input  type="text" class="form-control  "
 					 name="weight" value="${stockIn.weight!}" readonly />
@@ -89,16 +99,35 @@
 					 name="expireDate" value="${stockIn.settleOrder.code!'--'}" readonly />
 				</div>
 				<div class="form-group col">
-					<label for="">缴费日期 </label> <input  type="text" class="form-control  "
-					 name="expireDate" value="${stockIn.settleOrder.operateTime!'--'}" readonly />
+					<label for="">缴费日期 </label>
+					<%if(stockIn.settleOrder == null || stockIn.settleOrder.operateTime == ''){%>
+					<input  type="text" class="form-control  "
+						 name="expireDate" value="--" readonly />
+					<%
+					}else{
+					%>
+				 <input  type="text" class="form-control  "
+					 name="expireDate" value="${stockIn.settleOrder.operateTime!,localDateTimeFormat='yyyy-MM-dd'}" readonly />
+					<%}%>
+					
+					
 				</div>
 				<div class="form-group col">
-					<label for="">缴费金额 </label> <input  type="text" class="form-control  "
-					 name="expireDate" value="${stockIn.settleOrder.amount!'--'}" readonly />
+				<label for="">缴费金额 </label> 
+				<%if(stockIn.settleOrder == null || stockIn.settleOrder.amount == ''){%>
+				<input  type="text" class="form-control  "
+					 name="expireDate" value="--" readonly />
+				<%
+				}else{
+				%>
+				<input  type="text" class="form-control  "
+					 name="expireDate" value="<#centToYuan value='${stockIn.settleOrder.amount!}'/>" readonly />
+				<%}%>
+					
 				</div>
 				<div class="form-group col">
 					<label for="">卡号 </label> <input  type="text" class="form-control  "
-					 name="expireDate" value="${stockIn.settleOrder.accountNumber!'--'}" readonly />
+					 name="expireDate" value="${stockIn.settleOrder.tradeCardNo!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">收费员 </label> <input  type="text" class="form-control  "
@@ -221,4 +250,18 @@
 		</form>
 	</div>
 </#bs4Body>
+<script type="text/javascript">
+<!--
 
+//-->
+
+$(function(){
+	let uom = '${stockIn.uom!}';
+	if(uom == 1){
+		$("#uom").val('公斤');
+	}else{
+		$("#uom").val('件');
+	}
+	
+})
+</script>

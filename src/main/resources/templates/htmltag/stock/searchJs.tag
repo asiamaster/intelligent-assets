@@ -5,6 +5,15 @@ function strIsEmpty(str){
 	return str==null||str==""||str==undefined
 }
 
+
+/*$(document).on('change', '#clear',function(){
+	$('#select2-categoryId-container').html('--全部--')
+
+});*/
+$("#clear").click(function(){
+	$('#select2-categoryId-container').html('--全部--')
+});
+
 var categoryAutoCompleteOption = {
 		width: '100%',
 		language: 'zh-CN',
@@ -35,6 +44,46 @@ var categoryAutoCompleteOption = {
 			}
 		}
 }
+
+//部门变动对应,冷库区域变动
+//部门变动 冷库区域变更
+$(document).on('change', '#departmentId', function() {
+	$('#district-one').val("");
+	$('#district-two').html('<option value="" selected="">--全部--</option>');
+	$('#assetsId').val("");
+	$('#assetsId').html('<option value="" selected="">--请选择区域--</option>');
+	let data = [];
+	// 根据部门获取区域
+	$.ajax({
+		type: "POST",
+		url: "/stock/stockIn/searchDistrict.action",
+		data: {
+			parentId: 0,
+			departmentId:$('#departmentId').val()},
+		success: function (data) {
+			if (data.code == "200") {
+				var array = $.map(data.data, function (obj) {
+					obj.text = obj.text || obj.name;
+					return obj;
+				});
+				if (array.length == 0) {
+					let htmlConent = '<option value="" selected="">--无--</option>';
+					$('#district-one').html(htmlConent);
+				}else{
+					//当index大于0 标记为新增详情,只触发当前index的更新
+					let htmlConent = '<option value="" selected="">--请选择--</option>';
+					for (let item of array) {
+						htmlConent+='<option  value="'+item.id+'" >'+item.name+'</option>'
+					}
+					$("#district-one").html(htmlConent);
+				}
+			
+				
+			}
+		}
+	});
+	
+});
 
 
 $(function () {

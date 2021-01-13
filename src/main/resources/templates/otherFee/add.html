@@ -43,8 +43,8 @@
 
                 <%if(@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() == @com.dili.ia.glossary.MarketEnum.SY.getCode()){%>
                 <div class="form-group col">
-                    <label for="typeCode">所属区域0</label>
-                    <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId"></#js_district>
+                    <label for="typeCode">所属区域</label>
+                    <#js_district _firstDistrictName="firstDistrictId" _secondDistrictName="secondDistrictId" _firstDistrictTextName="firstDistrictName"  _secondDistrictTextName="secondDistrictName" ></#js_district>
                 </div>
                 <%}%>
 
@@ -57,7 +57,6 @@
                     <label for="assetsName" class="">费用地址</label>
                     <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
                     <input id="assetsNameInput" type="text" class="form-control"/>
-
                 </div>
 
                 <div class="form-group col">
@@ -93,4 +92,5 @@
 </#bs4Body>
 
 <#js_customerAutocompleteJs/>
+<#js_districtAssetsLinkage/>
 <#otherFee_addJs />

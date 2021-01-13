@@ -6,36 +6,6 @@
      *
      ***/
 
-        //行索引计数器
-    let itemIndex = 0;
-
-
-    //获取table Index
-    function getIndex(str) {
-        return str.split('_')[1];
-    }
-
-    var boothAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/assets/searchAssets.action',
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName?dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
-                }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
-            }
-        }
-    }
     /**
      * 摊位选择事件Handler
      * */
@@ -56,66 +26,9 @@
                 $('#customerCellphone').val(customer.customerContactsPhone);
             }
         });
-
         registerMsg();
-        $('#assetsId, #assetsName, #assetsNameInput').hide();
-
     });
 
-    $('#firstDistrictId').on('change', function(){
-        $('#assetsType').trigger("change");
-    })
-
-    $('#secondDistrictId').on('change', function(){
-        $('#assetsType').trigger("change");
-    })
-
-    $('#assetsType').on('change', function(){
-        $('#assetsId, #assetsName, #assetsNameInput').val('');
-        $('#assetsName, #assetsNameInput').removeClass('d-block');
-        $('#assetsName-error').remove();
-        $('#assetsNameInput').attr('name', '');
-        if($(this).val() == 1 ) {
-            $('#assetsName').addClass('d-block');
-        } else {
-            $('#assetsNameInput').attr('name', 'assetsName').addClass('d-block');
-        }
-    })
-
-    let assetsType = $('[name="assetsType"]').val();
-    let firstDistrictId = $('[name="firstDistrictId"]').val();
-    let secondDistrictId = $('[name="secondDistrictId"]').val();
-    var boothAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/assets/searchAssets.action',
-        onSearchStart: function (params) {
-            params['assetsType'] = $('[name="assetsType"]').val();
-            params['firstDistrictId'] = $('[name="firstDistrictId"]').val();
-            params['secondDistrictId'] = $('[name="secondDistrictId"]').val();
-            return params;
-        },
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
-                }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
-            }
-        },
-        selectFn: function (suggestion) {
-            $('#assetsName').val(suggestion.name);
-            $('#assetsId').val(suggestion.id);
-        }
-    }
 
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);

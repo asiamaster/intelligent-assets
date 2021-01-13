@@ -1,6 +1,7 @@
 <script>
 
     $(function () {
+        registerMsg();
         $('[data-refund-way="bank"]').hide();
     });
 

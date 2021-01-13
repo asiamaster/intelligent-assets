@@ -1,13 +1,19 @@
 package com.dili.ia.domain;
 
+import java.time.LocalDateTime;
+
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.metadata.FieldEditor;
 import com.dili.ss.metadata.annotation.EditMode;
 import com.dili.ss.metadata.annotation.FieldDef;
-import tk.mybatis.mapper.annotation.Version;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import tk.mybatis.mapper.annotation.Version;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -188,6 +194,30 @@ public class OtherFee extends BaseDomain {
      */
     @Column(name = "`canceler`")
     private String canceler;
+    
+    /**
+     * 交费提交人ID
+     */
+    @Column(name = "`submitter_id`")
+    private Long submitterId;
+    
+    /**
+     * 交费提交人名称
+     */
+    @Column(name = "`submitter`")
+    private String submitter;
+    
+    /**
+     * 退款提交人ID
+     */
+    @Column(name = "`refund_id`")
+    private Long refundId;
+    
+    /**
+     * 退款提交人名称
+     */
+    @Column(name = "`refunder`")
+    private String refunder;
 
     /**
      * 市场Id
@@ -784,6 +814,15 @@ public class OtherFee extends BaseDomain {
     public void setCancelerId(Long cancelerId) {
         this.cancelerId = cancelerId;
     }
+    
+    /**
+     * 设置取消人名称
+     *
+     * @param canceler 取消人名称
+     */
+    public void setCanceler(String canceler) {
+        this.canceler = canceler;
+    }
 
     /**
      * 获取取消人名称
@@ -796,13 +835,85 @@ public class OtherFee extends BaseDomain {
         return canceler;
     }
 
+    
     /**
-     * 设置取消人名称
+     * 获取交费提交人ID
      *
-     * @param canceler 取消人名称
+     * @return submitterId - 交费提交人ID
      */
-    public void setCanceler(String canceler) {
-        this.canceler = canceler;
+    @FieldDef(label="交费提交人ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getSubmitterId() {
+        return submitterId;
+    }
+
+    /**
+     * 设置交费提交人ID
+     *
+     * @param submitterId 交费提交人ID
+     */
+    public void setSubmitterId(Long submitterId) {
+        this.submitterId = submitterId;
+    }
+    
+    /**
+     * 设置交费提交人名称
+     *
+     * @param submitter 交费提交人名称
+     */
+    public void setSubmitter(String submitter) {
+        this.submitter = submitter;
+    }
+    
+    /**
+     * 获取交费提交人名称
+     *
+     * @return submitter - 交费提交人名称
+     */
+    @FieldDef(label="交费提交人名称", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getSubmitter() {
+        return submitter;
+    }
+
+    /**
+     * 获取退款提交人ID
+     *
+     * @return refundId - 退款提交人ID
+     */
+    @FieldDef(label="退款提交人ID")
+    @EditMode(editor = FieldEditor.Number, required = false)
+    public Long getRefundId() {
+        return refundId;
+    }
+
+    /**
+     * 设置退款提交人ID
+     *
+     * @param refundId 退款提交人ID
+     */
+    public void setRefundId(Long refundId) {
+        this.refundId = refundId;
+    }
+    
+    /**
+     * 设置退款提交人名称
+     *
+     * @param submitter 退款提交人名称
+     */
+    public void setRefunder(String refunder) {
+        this.refunder = refunder;
+    }
+    
+    /**
+     * 获取退款提交人名称
+     *
+     * @return refunder - 退款提交人名称
+     */
+    @FieldDef(label="退款提交人名称", maxLength = 20)
+    @EditMode(editor = FieldEditor.Text, required = false)
+    public String getRefunder() {
+        return refunder;
     }
 
     /**

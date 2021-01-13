@@ -5,8 +5,6 @@
      * @author jiangchengyong
      *
      ***/
-    //行索引计数器
-    let itemIndex = 0;
 
     //对应摊位
     $(function () {
@@ -27,62 +25,8 @@
         });
 
         registerMsg();
-        $('#assetsNameInput').hide();
     });
 
-    $('#firstDistrictId').on('change', function(){
-        $('#assetsType').trigger("change");
-    })
-
-    $('#secondDistrictId').on('change', function(){
-        $('#assetsType').trigger("change");
-    })
-
-    $('#assetsType').on('change', function(){
-        $('#assetsId, #assetsName, #assetsNameInput').val('').hide();
-        $('#assetsName-error').remove();
-        $('#assetsNameInput').attr('name', '');
-        if($(this).val() == 100 ) { //其它
-            $('#assetsNameInput').attr('name', 'assetsName').show();
-        } else {
-            $('#assetsName').show();
-        }
-    })
-
-    let assetsType = $('[name="assetsType"]').val();
-    let firstDistrictId = $('[name="firstDistrictId"]').val();
-    let secondDistrictId = $('[name="secondDistrictId"]').val();
-    var boothAutoCompleteOption = {
-        paramName: 'keyword',
-        displayFieldName: 'name',
-        serviceUrl: '/assets/searchAssets.action',
-        onSearchStart: function (params) {
-            params['assetsType'] = $('[name="assetsType"]').val();
-            params['firstDistrictId'] = $('[name="firstDistrictId"]').val();
-            params['secondDistrictId'] = $('[name="secondDistrictId"]').val();
-            return params;
-        },
-        transformResult: function (result) {
-            if(result.success){
-                let data = result.data;
-                return {
-                    suggestions: $.map(data, function (dataItem) {
-                        return $.extend(dataItem, {
-                                value: dataItem.name + '(' + (dataItem.secondAreaName? dataItem.areaName + '->' + dataItem.secondAreaName : dataItem.areaName) + ')'
-                            }
-                        );
-                    })
-                }
-            }else{
-                bs4pop.alert(result.message, {type: 'error'});
-                return;
-            }
-        },
-        selectFn: function (suggestion) {
-            $('#assetsName').val(suggestion.name);
-            $('#assetsId').val(suggestion.id);
-        }
-    }
 
     function buildFormData(){
         // let formData = new FormData($('#saveForm')[0]);

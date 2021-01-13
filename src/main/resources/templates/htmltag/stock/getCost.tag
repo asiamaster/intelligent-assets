@@ -36,7 +36,7 @@ function countItemNumber(obj){
 	obj.closest("form").find(".amount-item").each(function(){
 		total = parseFloat(total) + parseFloat($(this).val()==""?0:$(this).val());
 	})
-	setValue(obj.closest("form").find("[name=amount]"),total)
+	setValue(obj.closest("form").find("[name=amount]"),new Number(total).toFixed(2))
 
 	//countNumber("amount")
 }

@@ -7,14 +7,12 @@
         <input type="hidden" name="departmentId" value="${otherFee.departmentId!}"/>
         <input type="hidden" name="departmentName" value="${otherFee.departmentName!}"/>
         <input type="hidden" name="customerId" value="${otherFee.customerId!}"/>
-
-
         <div class="breadcrumb" >
             客户信息
             <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
                aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
-        <div class="row row-cols-4" id="customerInfo">
+        <div class="row row-cols-4 collapse show" id="customerInfo">
             <div class="form-group col">
                 <label for="customerName">客户名称<i class="red">*</i></label>
                 <input type="text" class="form-control" id="customerName" name="customerName" value="${otherFee.customerName!}" readonly/>
@@ -31,7 +29,7 @@
         <div class="row row-cols-4">
             <div class="form-group col">
                 <label for="totalRefundAmount" class="" _log>退款金额<i class="red">*</i></label>
-                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" range="0 9999999.99"  placeholder="可退余额：<#centToYuan value='${maxRefundAmount!}'/>" value="<#centToYuan value='${otherFee.amount!}'/>" required />
+                <input type="number" class="form-control floatReserve money" id="totalRefundAmount" name="totalRefundAmount" range="0.01 9999999.99"  placeholder="可退余额：<#centToYuan value='${otherFee.amount!}'/>" value="" required />
             </div>
         </div>
 

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -72,12 +73,12 @@ public class StockInPrintDto {
 	@JSONField(format = "yyyy-MM-dd")
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDateTime stockInDate;
+	private LocalDate stockInDate;
 
 	@JSONField(format = "yyyy-MM-dd")
 	@JsonFormat(pattern = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDateTime expireDate;
+	private LocalDate expireDate;
 
 	public LocalDateTime getPrintTime() {
 		return printTime;
@@ -271,19 +272,19 @@ public class StockInPrintDto {
 		this.proxyPayer = proxyPayer;
 	}
 
-	public LocalDateTime getStockInDate() {
+	public LocalDate getStockInDate() {
 		return stockInDate;
 	}
 
-	public void setStockInDate(LocalDateTime stockInDate) {
+	public void setStockInDate(LocalDate stockInDate) {
 		this.stockInDate = stockInDate;
 	}
 
-	public LocalDateTime getExpireDate() {
+	public LocalDate getExpireDate() {
 		return expireDate;
 	}
 
-	public void setExpireDate(LocalDateTime expireDate) {
+	public void setExpireDate(LocalDate expireDate) {
 		this.expireDate = expireDate;
 	}
 

@@ -71,7 +71,7 @@ function buildFormData(){
 	$("form").find(".chargeItem").each(function(){
 		let businessCharge = {};
 		businessCharge.chargeItemName=$(this).attr("chargeItem");
-		businessCharge.amount=parseInt($(this).val())*100;
+		businessCharge.amount= parseFloat($(this).val().mul(100)).toFixed(0);
 		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
 		if (businessCharge != {}) {
 			refundFeeItems.push(businessCharge);
@@ -88,9 +88,9 @@ function buildFormData(){
 function calcTotalRefundAmount(){
 	let total = 0;
 	$("form").find(".chargeItem").each(function() {
-		total = parseInt(total) + parseInt($(this).val());
-		$('#totalRefundAmount').val((total.mul(100)).centToYuan());
-	    $('[name="payeeAmount"]').val((total.mul(100)).centToYuan());
+		total = parseFloat(total) + parseFloat($(this).val());
+		$('#totalRefundAmount').val(total.toFixed(2));
+	    $('[name="payeeAmount"]').val(total.toFixed(2));
 	});
 }
 
