@@ -6,6 +6,7 @@ import com.dili.assets.sdk.dto.AssetsRentDTO;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.ia.domain.AssetsLeaseOrder;
 import com.dili.ia.domain.AssetsLeaseOrderItem;
+import com.dili.ia.domain.AssetsRental;
 import com.dili.ia.domain.dto.AssetsRentalDto;
 import com.dili.ia.glossary.AssetsTypeEnum;
 import com.dili.ia.service.AssetsLeaseService;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -64,20 +66,20 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
 
         //检查预设批次号
         List<AssetsRentalDto> assetsRentalDtos = assetsRentalService.listByAssetsIds(assetsIds);
+        Map<Long, String> assetsRentalMap = assetsRentalDtos.stream().collect(Collectors.toMap(AssetsRentalDto::getAssetsId, AssetsRental::getBatchId));
         if (null != batchId) {
-            if (assetsRentalDtos.size() != assetsIds.size()) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设发生变更");
-            }
-            if (assetsRentalDtos.stream().collect(Collectors.groupingBy(AssetsRentalDto::getBatchId, Collectors.counting())).size() > 1) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设为不同预设批次");
-            }
-
-            if (!batchId.equals(assetsRentalDtos.get(0).getBatchId())) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "合同中预设批次整体发生变更");
-            }
+            assetsDTOS.forEach(o -> {
+                if (assetsRentalMap.containsKey(o.getId())) {
+                    if (!batchId.equals(assetsRentalMap.get(o.getId()))) {
+                        throw new BusinessException(ResultCode.DATA_ERROR, o.getName() + "预设发生变更，请删除对应摊位后重新添加");
+                    }
+                } else {
+                    throw new BusinessException(ResultCode.DATA_ERROR, o.getName() + "预设发生变更，请删除对应摊位后重新添加");
+                }
+            });
         } else {
             if (CollectionUtils.isNotEmpty(assetsRentalDtos)) {
-                throw new BusinessException(ResultCode.DATA_ERROR, "合同中摊位预设发生变更");
+                throw new BusinessException(ResultCode.DATA_ERROR, assetsDTOS.get(0).getName() + "预设发生变更，请删除对应摊位后重新添加");
             }
         }
 
