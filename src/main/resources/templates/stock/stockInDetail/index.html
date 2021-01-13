@@ -4,6 +4,12 @@
     <form id="queryForm" role="form" >
     <input type="hidden" name="isStockInDetails" value=false />
         <div class="row row-cols-6">
+        <div class="form-group col">
+                <label for="type">入库类型</label>
+                <select id="type" name="type" class="form-control">
+                </select>
+                <#bcomboProvider _id="type" _provider="stockInTypeProvider" />
+            </div>
             <div class="form-group col">
                 <label for="departmentId">部门</label>
                 <select id="departmentId" name="departmentId" class="form-control"></select>
@@ -73,12 +79,7 @@
                 <label for="creator">子单号</label>
                 <input type="text" class="form-control" name="stockInDetailCode"  maxlength="50"/>
             </div>
-            <div class="form-group col">
-                <label for="type">入库类型</label>
-                <select id="type" name="type" class="form-control">
-                </select>
-                <#bcomboProvider _id="type" _provider="stockInTypeProvider" />
-            </div>
+            
             <div class="form-group col">
                 <label for="creator">到期天数</label>
                 <input type="number" class="form-control" name="expireDay" id="expireDay" maxlength="5"/>
