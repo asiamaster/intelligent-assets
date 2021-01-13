@@ -46,7 +46,9 @@
     		let businessCharge = {};
     		businessCharge.chargeItemName=$(this).attr("chargeItem");
     		businessCharge.id=$(this).attr("item-id");
-    		businessCharge.amount=parseInt($(this).val())*100;
+    		//businessCharge.amount=parseInt($(this).val())*100;
+    		businessCharge.amount= parseFloat(new Number($(this).val()).mul(100)).toFixed(0);
+
     		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
     		if (businessCharge != {}) {
     			refundFeeItems.push(businessCharge);
