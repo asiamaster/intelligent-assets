@@ -79,7 +79,7 @@ public class BoothLeaseServiceImpl implements AssetsLeaseService {
             });
         } else {
             if (CollectionUtils.isNotEmpty(assetsRentalDtos)) {
-                throw new BusinessException(ResultCode.DATA_ERROR, assetsDTOS.get(0).getName() + "预设发生变更，请删除对应摊位后重新添加");
+                throw new BusinessException(ResultCode.DATA_ERROR, assetsRentalDtos.get(0).getAssetsName() + "预设发生变更，请删除对应摊位后重新添加");
             }
         }
 
