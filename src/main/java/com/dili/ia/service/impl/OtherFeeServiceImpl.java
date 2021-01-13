@@ -1,16 +1,24 @@
 package com.dili.ia.service.impl;
 
-import cn.hutool.core.collection.CollectionUtil;
-import com.dili.commons.glossary.EnabledStateEnum;
-import com.dili.commons.glossary.YesOrNoEnum;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.dili.ia.domain.DepartmentChargeItem;
 import com.dili.ia.domain.OtherFee;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.OtherFeeDto;
 import com.dili.ia.domain.dto.OtherFeeRefundOrderDto;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.OtherFeePrintDto;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizNumberTypeEnum;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.OtherFeeStateEnum;
@@ -40,17 +48,9 @@ import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
-import io.seata.spring.annotation.GlobalTransactional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import cn.hutool.core.collection.CollectionUtil;
+import io.seata.spring.annotation.GlobalTransactional;
 
 /**
  * @author: xiaosa
@@ -230,6 +230,8 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 		// 修改其他交费状态为已提交
 		otherFeeInfo.setState(OtherFeeStateEnum.SUBMITTED.getCode());
 		otherFeeInfo.setModifyTime(LocalDateTime.now());
+		otherFeeInfo.setSubmitterId(userTicket.getId());
+		otherFeeInfo.setSubmitter(userTicket.getRealName());
 		if (this.updateSelective(otherFeeInfo) == 0) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请刷新页面重试！");
 		}
@@ -450,6 +452,8 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 		// 修改其他收费业务单的状态
 		otherFeeInfo.setModifyTime(LocalDateTime.now());
 		otherFeeInfo.setState(OtherFeeStateEnum.REFUNDING.getCode());
+		otherFeeInfo.setRefundId(userTicket.getId());
+		otherFeeInfo.setRefunder(userTicket.getRealName());
 		if (this.updateSelective(otherFeeInfo) == 0) {
 			throw new BusinessException(ResultCode.DATA_ERROR, "多人操作，请重试！");
 		}
@@ -637,7 +641,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 		otherFeePrintDto.setNotes("".equals(otherFeeInfo.getNotes()) ? "" : otherFeeInfo.getNotes());
 		otherFeePrintDto.setSettlementWay(SettleWayEnum.getNameByCode(paymentOrder.getSettlementWay()));
 		otherFeePrintDto.setSettlementOperator(paymentOrder.getSettlementOperator());
-		otherFeePrintDto.setSubmitter(paymentOrder.getCreator());
+		otherFeePrintDto.setSubmitter(otherFeeInfo.getSubmitter());
 
 		PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setName(PrintTemplateEnum.OTHER_FEE_PAY.getCode());
@@ -677,7 +681,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 			otherFeePrintDto.setPrintTime(LocalDateTime.now());
 			otherFeePrintDto.setCustomerName(otherFeeInfo.getCustomerName());
 			otherFeePrintDto.setCustomerCellphone(otherFeeInfo.getCustomerCellphone());
-			otherFeePrintDto.setAmount(String.valueOf(otherFeeInfo.getAmount()));
+			otherFeePrintDto.setAmount(MoneyUtils.centToYuan(otherFeeInfo.getAmount()));
 			otherFeePrintDto.setBusinessType(BizTypeEnum.OTHER_FEE.getName());
 			otherFeePrintDto.setChargeItemName(otherFeeInfo.getChargeItemName());
 
@@ -693,13 +697,14 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 			} else if (SettleWayEnum.BANK.getCode() == order.getWay()) {
 				// 银行卡
 				settleDetails = settleDetails + "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "  开户行：" + order.getBankName()
-						+ "  银行卡号：" + order.getBankCardHolder();
+						+ "  银行卡号：" + order.getAccountNumber();
 			}
 			otherFeePrintDto.setSettleWayDetails(settleDetails);
 
 			otherFeePrintDto.setNotes(otherFeeInfo.getNotes());
 			otherFeePrintDto.setRefundReason(refundOrderInfo.getRefundReason());
 			otherFeePrintDto.setSettlementOperator(order.getOperatorName());
+			otherFeePrintDto.setSubmitter(otherFeeInfo.getRefunder());
 
 			// 打印最外层
 			PrintDataDto<OtherFeePrintDto> printDataDto = new PrintDataDto<>();
