@@ -19,6 +19,7 @@ import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.StockInDetailService;
 import com.dili.ia.service.StockInService;
+import com.dili.settlement.domain.SettleOrder;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.exception.BusinessException;
 import com.github.pagehelper.Page;
@@ -79,6 +80,7 @@ public class StockInDetailServiceImpl extends BaseServiceImpl<StockInDetail, Lon
 		result.put("stockInDetail", stockInDetail);
 		result.put("stockIn", stockIn);
 		// 结算单信息
+		result.put("settleOrder",new SettleOrder());
 		if (stockIn.getState() != StockInStateEnum.CREATED.getCode()
 				&& stockIn.getState() != StockInStateEnum.CANCELLED.getCode()) {
 			result.put("settleOrder",settlementRpcResolver.get(settlementAppId, stockIn.getPaymentOrderCode()));

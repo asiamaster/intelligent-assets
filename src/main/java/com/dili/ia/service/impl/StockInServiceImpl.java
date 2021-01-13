@@ -548,10 +548,11 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}
 		StockIn domain = new StockIn(settleOrder.getOperatorId(), settleOrder.getOperatorName());
 		updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.REFUNDED);
-		List<StockInDetail> details = getStockInDetailsByStockCode(code);
+		// 退款不用管理库存
+		/*List<StockInDetail> details = getStockInDetailsByStockCode(code);
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), refundOrder.getCode());
-		});
+		});*/
 
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 
