@@ -1,6 +1,8 @@
 package com.dili.ia.service.impl;
 
 import com.dili.assets.sdk.dto.AssetsDTO;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
 import com.dili.assets.sdk.rpc.AreaMarketRpc;
 import com.dili.assets.sdk.rpc.AssetsRpc;
 import com.dili.commons.glossary.EnabledStateEnum;
@@ -16,11 +18,8 @@ import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.EarnestOrderMapper;
+import com.dili.ia.service.*;
 import com.dili.uid.sdk.rpc.feign.UidFeignRpc;
-import com.dili.ia.service.CustomerAccountService;
-import com.dili.ia.service.EarnestOrderDetailService;
-import com.dili.ia.service.EarnestOrderService;
-import com.dili.ia.service.PaymentOrderService;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleOrderLink;
@@ -53,6 +52,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 由MyBatis Generator工具自动生成
@@ -87,6 +87,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
     UidFeignRpc uidFeignRpc;
     @Autowired
     AreaMarketRpc areaMarketRpc;
+    @Autowired
+    BusinessChargeItemService businessChargeItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -427,10 +429,22 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setChargeItemId(ChargeItemEnum.定金.getId()); //静态收费项
-        sfItem.setChargeItemName(ChargeItemEnum.定金.getName()); //静态收费项
-        sfItem.setFeeType(FeeTypeEnum.定金.getCode()); //定金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
-        sfItem.setFeeName(FeeTypeEnum.定金.getName()); //定金费用类型名称
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(ea.getMarketId(), BizTypeEnum.EARNEST.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.EARNEST.getEnName());
+        BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
+        if (null == chargeItemDto){
+            LOG.info("定金单业务没有查询到固定的【定金】收费项，code={}", BizTypeEnum.EARNEST.getEnName());
+            throw new BusinessException("定金单业务没有查询到固定的【定金】收费项，code={}", BizTypeEnum.EARNEST.getEnName());
+        }
+        sfItem.setChargeItemId(chargeItemDto.getId()); //静态收费项
+        sfItem.setChargeItemName(chargeItemDto.getChargeItem()); //静态收费项
+        sfItem.setFeeType(chargeItemDto.getSystemSubject()); //定金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
+        Optional<BusinessChargeItemEnum.SystemSubjectType> instance = BusinessChargeItemEnum.SystemSubjectType.getInstance(chargeItemDto.getSystemSubject());
+        if (instance.isPresent()){
+            //定金费用类型名称
+            sfItem.setFeeName(instance.get().getName());
+        }else {
+            throw new BusinessException(ResultCode.DATA_ERROR,"根据费用类型，未获取到费用类型名称");
+        }
         sfItem.setAmount(paymentOrder.getAmount());
         settleFeeItemList.add(sfItem);
         settleOrder.setSettleFeeItemList(settleFeeItemList);

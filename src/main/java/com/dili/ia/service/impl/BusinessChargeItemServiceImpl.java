@@ -54,6 +54,29 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
     }
 
     @Override
+    public List<BusinessChargeItemDto> queryFixedBusinessChargeItemConfig(Long marketId, String bizType, Integer isEnable, Integer fixed, String code) {
+        BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
+        businessChargeItemDto.setMarketId(marketId);
+        businessChargeItemDto.setBusinessType(bizType);
+        businessChargeItemDto.setIsEnable(isEnable);
+        businessChargeItemDto.setFixed(fixed);
+        businessChargeItemDto.setCode(code);
+        businessChargeItemDto.setChargeType(BusinessChargeItemEnum.ChargeType.收费.getCode());
+        //获取业务收费项目
+        try{
+            BaseOutput<List<BusinessChargeItemDto>> chargeItemsOutput = businessChargeItemRpc.listByExample(businessChargeItemDto);
+            if(!chargeItemsOutput.isSuccess()){
+                LOG.error("查询收费项接口返回失败，参数：{}，原因：{}", businessChargeItemDto.toString(), chargeItemsOutput.getMessage());
+                throw new BusinessException(ResultCode.DATA_ERROR, "查询收费项接口返回失败!");
+            }
+            return chargeItemsOutput.getData();
+        }catch (Exception e){
+            LOG.error("查询收费项服务异常!，参数：{},原因：{}", businessChargeItemDto.toString(), e.getMessage());
+            throw new BusinessException(ResultCode.APP_ERROR, "查询收费项服务异常!");
+        }
+    }
+
+    @Override
     public List<BusinessChargeItemDto> queryBusinessChargeItemMeta(String bizType, List<Long> businessIds) {
         return getActualDao().queryBusinessChargeItemMeta(bizType, businessIds);
     }
