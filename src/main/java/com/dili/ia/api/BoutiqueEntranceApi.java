@@ -154,7 +154,7 @@ public class BoutiqueEntranceApi {
      */
     @RequestMapping(value = "/refundOrder/queryPrintData", method = {RequestMethod.POST, RequestMethod.GET})
     public @ResponseBody
-    BaseOutput<PrintDataDto<BoutiqueEntrancePrintDto>> queryRefundPrintData(String orderCode, String reprint) {
+    BaseOutput<PrintDataDto<BoutiqueEntrancePrintDto>> queryRefundPrintData(String orderCode, Integer reprint) {
         try {
             return BaseOutput.success().setData(boutiqueEntranceService.receiptRefundPrintData(orderCode, reprint));
         } catch (BusinessException e) {

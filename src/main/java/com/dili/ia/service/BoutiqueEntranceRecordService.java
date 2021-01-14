@@ -114,7 +114,7 @@ public interface BoutiqueEntranceRecordService extends BaseService<BoutiqueEntra
      * @return PrintDataDto
      * @date   2020/8/11
      */
-    PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint);
+    PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, Integer reprint);
 
     /**
      * 新增计费（提供给其他服务调用者）
