@@ -22,10 +22,6 @@ public class MessageFeeRefundPrintDto {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime printTime;
-	// 补打标记
-	private String reprint;
-	// 订单编号
-	private String code;
 	// 业务类型
 	private String businessType;
 	// 客户名称
@@ -70,18 +66,7 @@ public class MessageFeeRefundPrintDto {
 	public void setPrintTime(LocalDateTime printTime) {
 		this.printTime = printTime;
 	}
-	public String getReprint() {
-		return reprint;
-	}
-	public void setReprint(String reprint) {
-		this.reprint = reprint;
-	}
-	public String getCode() {
-		return code;
-	}
-	public void setCode(String code) {
-		this.code = code;
-	}
+	
 	public String getBusinessType() {
 		return businessType;
 	}

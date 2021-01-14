@@ -624,7 +624,6 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, refundOrder.getCode());
 		LaborRefundPrintDto printDto = new LaborRefundPrintDto();
 		printDto.setPrintTime(LocalDateTime.now());
-		printDto.setReprint(reprint);
 		printDto.setBusinessType(BizTypeEnum.LABOR_VEST.getName());
 		printDto.setWorkCard(labor.getWorkCard());
 		printDto.setTotalAmount(String.valueOf(labor.getAmount()));
@@ -633,13 +632,12 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		printDto.setSettlementOperator(order.getOperatorName());
 		printDto.setSubmitter(refundOrder.getSubmitter());
 		printDto.setNotes(refundOrder.getRefundReason());
-		printDto.setPayeeAmount(refundOrder.getPayeeAmount());
+		printDto.setPayeeAmount(MoneyUtils.centToYuan(refundOrder.getPayeeAmount()));
 		printDto.setTotalAmount(MoneyUtils.centToYuan(order.getAmount()));
-		printDto.setCode(labor.getCode());
 
 
 		// 支付方式
-		String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + refundOrder.getPayeeAmount();
+		String settleDetails = "收款人：" + refundOrder.getPayee() + "金额：" + MoneyUtils.centToYuan(refundOrder.getPayeeAmount());
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
             settleDetails = "退款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     园区卡号：" + order.getTradeCardNo();
