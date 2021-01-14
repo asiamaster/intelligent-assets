@@ -70,7 +70,7 @@ INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-劳务马甲退款单', 'hzsc_laborVest_refundOrder', 'HZSCTKMJ', 'yyyyMMdd', 4, '1');
 
-INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-信息费退款单', 'hzsc_messageFee_refundOrder', 'HZSCTKMJ', 'yyyyMMdd', 4, '1');
+INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-信息费退款单', 'hzsc_messageFee_refundOrder', 'HZSCTKXXF', 'yyyyMMdd', 4, '1');
 
 INSERT INTO `uap`.`biz_number_rule` ( `name`, `type`, `prefix`, `date_format`, `length`, `range`) VALUES ('杭州水产-信息费单', 'hzsc_messageFee', 'HZSCXXF', 'yyyyMMdd', 4, '1');
 
