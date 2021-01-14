@@ -150,7 +150,7 @@ ADD COLUMN `first_district_name` varchar(40) NULL COMMENT '父级区域名称' A
 -- 其他收费添加交费/退款提交人
 ALTER TABLE `dili_ia`.`other_fee` 
 ADD COLUMN `submitter_id` bigint(20) DEFAULT NULL COMMENT '交费提交人ID' AFTER `canceler`,
-ADD COLUMN `submitter` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '交费提交人名称' AFTER `committer_id`,
+ADD COLUMN `submitter` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '交费提交人名称' AFTER `submitter_id`,
 ADD COLUMN `refund_id` bigint(20) DEFAULT NULL COMMENT '退款提交人ID' AFTER `submitter`,
 ADD COLUMN `refunder` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '退款提交人名称' AFTER `refund_id`;
 

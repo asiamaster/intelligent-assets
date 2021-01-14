@@ -825,6 +825,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
         invalidRequestDto.setOperatorId(userTicket.getId());
         invalidRequestDto.setOperatorName(userTicket.getRealName());
         invalidRequestDto.setOrderCodeList(paymentOrders.stream().map(o -> o.getCode()).collect(Collectors.toList()));
+        invalidRequestDto.setOperatorNo(userTicket.getUserName());
         BaseOutput settlementInvalidOutput = settleOrderRpc.invalid(invalidRequestDto);
         if (!settlementInvalidOutput.isSuccess()) {
             LOG.error("租赁单作废调用结算单作废异常 【租赁单CODE {}】", leaseOrder.getCode());

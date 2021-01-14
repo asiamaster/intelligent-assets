@@ -544,7 +544,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
      * @date   2020/8/11
      */
     @Override
-    public PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, String reprint)  {
+    public PrintDataDto<BoutiqueEntrancePrintDto> receiptRefundPrintData(String orderCode, Integer reprint)  {
         RefundOrder condtion = new RefundOrder();
         condtion.setCode(orderCode);
         List<RefundOrder> refundOrders = refundOrderService.list(condtion);
@@ -560,7 +560,7 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
             }
             // 组装退款单信息
             BoutiqueEntrancePrintDto printDto = new BoutiqueEntrancePrintDto();
-            printDto.setReprint(reprint);
+            printDto.setReprint(reprint == 2 ? "(补打)" : "");
             printDto.setNotes(orderInfo.getNotes());
             printDto.setPrintTime(LocalDateTime.now());
             printDto.setSubmitter(orderInfo.getSubmitter());
