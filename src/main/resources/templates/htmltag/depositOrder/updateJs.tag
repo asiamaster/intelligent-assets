@@ -41,10 +41,10 @@
 
     // 提交保存
     function doUpdateDepostHandler(){
-        let validator = $('#updateForm').validate({ignore:''})
+        let validator = $('#updateForm').validate()
         if (!validator.form()) {
-            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
-            $('.collapse:not(.show)').addClass('show');
+            /*$('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');*/
             return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');

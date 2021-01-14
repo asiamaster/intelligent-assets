@@ -40,13 +40,13 @@
 
     // 提交保存
     function doAddDepositHandler(){
-        let validator = $('#saveForm').validate({ignore:''})
+        let validator = $('#saveForm').validate()
         if (!validator.form()) {
             /*$(this).find('.collapse').each(function (index, element) {
                 $(element).trigger('show.bs.collapse');
             });*/
-            $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
-            $('.collapse:not(.show)').addClass('show');
+            /*$('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
+            $('.collapse:not(.show)').addClass('show');*/
             return false;
         }
         bui.loading.show('努力提交中，请稍候。。。');

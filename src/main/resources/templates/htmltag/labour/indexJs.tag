@@ -59,7 +59,6 @@
     // 提交保存
     function saveOrUpdateHandler(){
         let validator = $('#_form').validate({ignore:''})
-        debugger
         if (!validator.form()) {
             $('.breadcrumb [data-toggle="collapse"]').html('收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i>');
             $('.collapse:not(.show)').addClass('show');
