@@ -38,12 +38,14 @@ import com.dili.ia.mapper.LaborMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.BusinessLogService;
 import com.dili.ia.service.LaborService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SettleOrderLinkUtils;
+import com.dili.logger.sdk.component.MsgService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -75,7 +77,7 @@ import io.seata.spring.annotation.GlobalTransactional;
  * This file was generated on 2020-07-27 14:50:45.
  */
 @Service
-public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements LaborService {
+public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements LaborService,BusinessLogService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(LaborServiceImpl.class);
 
@@ -107,6 +109,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	@SuppressWarnings("all")
 	@Autowired
 	private DepartmentRpc departmentRpc;
+	
+	@Autowired
+	private MsgService msgService;
 
 	@Value("${settlement.app-id}")
 	private Long settlementAppId;
@@ -381,7 +386,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		}
 		Labor domain = new Labor();
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.REFUNDED);
-		
+        msgService.sendBusinessLog(recordRefundLog(refundOrder, labor.getId(), labor.getCode()));
+
 	}
 	
 	@Override
@@ -429,8 +435,8 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 			Labor laborDomain = new Labor();
 			update(laborDomain, reLabor.getCode(), reLabor.getVersion(), LaborStateEnum.REMODEL);
 		}
-        LoggerUtil.buildLoggerContext(labor.getId(), labor.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
-
+		//记录缴费
+        msgService.sendBusinessLog(recordPayLog(settleOrder, labor.getId(), labor.getCode()));
 	}
 	
 	private String buildVestCode(String firmCode,String models) {

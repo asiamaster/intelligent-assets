@@ -26,7 +26,6 @@ import com.dili.ia.domain.BusinessChargeItem;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundFeeItem;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.Stock;
 import com.dili.ia.domain.StockIn;
 import com.dili.ia.domain.StockInDetail;
 import com.dili.ia.domain.StockWeighmanRecord;
@@ -48,6 +47,7 @@ import com.dili.ia.mapper.StockInMapper;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.BusinessLogService;
 import com.dili.ia.service.DataAuthService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundFeeItemService;
@@ -58,6 +58,7 @@ import com.dili.ia.service.StockService;
 import com.dili.ia.service.StockWeighmanRecordService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SettleOrderLinkUtils;
+import com.dili.logger.sdk.component.MsgService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -89,7 +90,7 @@ import io.seata.spring.annotation.GlobalTransactional;
  * This file was generated on 2020-06-12 11:14:28.
  */
 @Service
-public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implements StockInService {
+public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implements StockInService,BusinessLogService {
 	private final static Logger LOG = LoggerFactory.getLogger(StockInServiceImpl.class);
 	@Autowired
 	private UidRpcResolver uidRpcResolver;
@@ -124,6 +125,9 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 	
 	@Autowired
 	private DataAuthService dataAuthService;
+	
+	@Autowired
+	private MsgService msgService;
 	
 	/*@Value("${settlement.app-id}")
 	private Long settlementAppId;
@@ -553,7 +557,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		details.forEach(detail -> {
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), refundOrder.getCode());
 		});*/
-
+		//记录退款日志
+        msgService.sendBusinessLog(recordRefundLog(refundOrder, stockIn.getId(), stockIn.getCode()));
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 
 	}
@@ -681,7 +686,8 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		}else {
 			updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		}
-        LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
+		//记录缴费
+        msgService.sendBusinessLog(recordPayLog(settleOrder, stockIn.getId(), stockIn.getCode()));
 	}
 
 	@Override
@@ -775,13 +781,12 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 		stockInPrintDto.setCustomerName(stockIn.getCustomerName());
 		stockInPrintDto.setDepartmentName(stockIn.getDepartmentName());
 		stockInPrintDto.setPrintTime(LocalDateTime.now());
-		stockInPrintDto.setReprint(reprint);
 		stockInPrintDto.setSubmitter(refundOrder.getSubmitter());
 		stockInPrintDto.setReviewer("");
 		stockInPrintDto.setSettlementOperator(order.getOperatorName());
         stockInPrintDto.setSettleWayDetails(SettleWayEnum.getNameByCode(order.getWay()));
-        stockInPrintDto.setTotalAmount(MoneyUtils.centToYuan(order.getAmount()));
-		stockInPrintDto.setTotalAmountCn(Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(order.getAmount()))));
+        stockInPrintDto.setTotalAmount("-"+MoneyUtils.centToYuan(order.getAmount()));
+		stockInPrintDto.setTotalAmountCn("负"+Convert.digitToChinese(new BigDecimal(MoneyUtils.centToYuan(order.getAmount()))));
 		// 支付方式
         stockInPrintDto.setPayWay(SettleWayEnum.getNameByCode(order.getWay()));
 

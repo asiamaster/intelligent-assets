@@ -467,6 +467,7 @@ public class RefundOrderController {
      * 修改退款单
      * @Title doUpdate
      */
+    @BusinessLogger(businessType = LogBizTypeConst.REFUND_ORDER, content="${businessCode!}", operationType="edit", systemCode = "IA")
     @PostMapping(value="/doUpdateV1.action")
     public @ResponseBody BaseOutput doUpdateV1(@RequestBody RefundOrderDto dto) {
     	refundOrderService.doUpdatedHandlerV1(dto);
