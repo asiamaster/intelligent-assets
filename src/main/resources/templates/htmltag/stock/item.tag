@@ -504,5 +504,14 @@ var carTypeAutoCompleteOption = {
 function strIsNotEmpty(str){
 	return str!=null&&str!=""&&str!=undefined
 }
+function sleep(n) {
+    var start = new Date().getTime();
+    while (true) {
+        if (new Date().getTime() - start > n) {
+            break;
+        }
+    }
+}
+
 </script>
 

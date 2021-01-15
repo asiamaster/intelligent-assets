@@ -219,9 +219,13 @@ function buildFormData() {
 
 // 提交保存
 function doAddStockInHandler() {
-	//buildFormData();
-	//return;
 	//司磅入库参数验证问题
+	if (!strIsNotEmpty($('#amount').val())) {
+		//console.log(13123);
+		//等待费用计算
+		sleep(1000);
+	}
+
 	if(!validateForm()){
 		return;
 	}
@@ -249,5 +253,7 @@ function doAddStockInHandler() {
 		}
 	});
 }
+
+
 
 </script>

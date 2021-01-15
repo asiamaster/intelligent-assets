@@ -110,7 +110,11 @@ function initDetailItem(stockDetail) {
 		$("#chargeItem_"+chargeItem.chargeItemId+"_"+itemIndex).attr("chargeItem-version",chargeItem.version);
 	}
 	weightItems.set(itemIndex+"",stockDetail.stockWeighmanRecord);
-	
+	if(stockDetail.stockWeighmanRecord != null && strIsNotEmpty(stockDetail.stockWeighmanRecord.tareWeight)
+			&& stockDetail.stockWeighmanRecord.tareWeight > 0){
+		$("#saveForm_"+itemIndex).find('.weight').attr('disabled',"true");
+		$("#saveForm_"+itemIndex).find('.weight').text('已过磅');
+	}
 	
 	// 子单数据加载对应区域列表
 	changeDistrict(itemIndex,'0',stockDetail.parentDistrictId,'one','${stockIn.departmentId!}');
@@ -278,6 +282,12 @@ function buildFormData() {
 
 // 提交保存
 function doUpdateStockInHandler() {
+	//司磅入库参数验证问题
+	if (!strIsNotEmpty($('#amount').val())) {
+		//console.log(13123);
+		//等待费用计算
+		sleep(1000);
+	}
 	if(!validateForm()){
 		return;
 	}
