@@ -350,7 +350,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		} catch (Exception e) {
             LOG.error("【白名单推送】接口调用异常!");
 		}
-        msgService.sendBusinessLog(recordRefundLog(refundOrder, messageFee.getId(), messageFee.getCode()));
+        msgService.sendBusinessLog(recordRefundLog(refundOrder,BizTypeEnum.MESSAGEFEE.getEnName()  ,messageFee.getId(), messageFee.getCode()));
 	}
 
 	@Override
@@ -391,7 +391,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		} catch (Exception e) {
             LOG.error("【白名单推送】接口调用异常!");
 		}
-        msgService.sendBusinessLog(recordPayLog(settleOrder, messageFee.getId(), messageFee.getCode()));
+        msgService.sendBusinessLog(recordPayLog(settleOrder,BizTypeEnum.MESSAGEFEE.getEnName() ,messageFee.getId(), messageFee.getCode()));
 
 	}
 	

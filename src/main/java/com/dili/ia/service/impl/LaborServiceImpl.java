@@ -386,7 +386,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		}
 		Labor domain = new Labor();
 		update(domain, labor.getCode(), labor.getVersion(), LaborStateEnum.REFUNDED);
-        msgService.sendBusinessLog(recordRefundLog(refundOrder, labor.getId(), labor.getCode()));
+        msgService.sendBusinessLog(recordRefundLog(refundOrder,BizTypeEnum.LABOR_VEST.getEnName(),labor.getId(), labor.getCode()));
 
 	}
 	
@@ -436,7 +436,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 			update(laborDomain, reLabor.getCode(), reLabor.getVersion(), LaborStateEnum.REMODEL);
 		}
 		//记录缴费
-        msgService.sendBusinessLog(recordPayLog(settleOrder, labor.getId(), labor.getCode()));
+        msgService.sendBusinessLog(recordPayLog(settleOrder,BizTypeEnum.LABOR_VEST.getEnName() ,labor.getId(), labor.getCode()));
 	}
 	
 	private String buildVestCode(String firmCode,String models) {

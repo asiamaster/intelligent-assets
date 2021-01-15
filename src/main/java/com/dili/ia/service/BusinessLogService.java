@@ -24,7 +24,7 @@ public interface BusinessLogService {
      * @param refundOrder
      * @param leaseOrder
      */
-    default BusinessLog recordRefundLog(RefundOrder refundOrder, Long businessId ,String businessCode) {
+    default BusinessLog recordRefundLog(RefundOrder refundOrder, String bizType, Long businessId ,String businessCode) {
         BusinessLog businessLog = new BusinessLog();
         businessLog.setBusinessId(businessId);
         businessLog.setBusinessCode(businessCode);
@@ -33,7 +33,7 @@ public interface BusinessLogService {
         businessLog.setMarketId(refundOrder.getMarketId());
         businessLog.setOperatorId(refundOrder.getRefundOperatorId());
         businessLog.setOperatorName(refundOrder.getRefundOperator());
-        businessLog.setBusinessType(BizTypeEnum.getBizTypeEnum(refundOrder.getBizType()).getEnName());
+        businessLog.setBusinessType(bizType);
         businessLog.setSystemCode("IA");
         return businessLog;
     }
@@ -44,7 +44,7 @@ public interface BusinessLogService {
      * @param settleOrder
      * @param leaseOrder
      */
-    default BusinessLog recordPayLog(SettleOrder settleOrder,  Long businessId ,String businessCode) {
+    default BusinessLog recordPayLog(SettleOrder settleOrder, String bizType, Long businessId ,String businessCode) {
         BusinessLog businessLog = new BusinessLog();
         businessLog.setBusinessId(businessId);
         businessLog.setBusinessCode(businessCode);
@@ -53,7 +53,7 @@ public interface BusinessLogService {
         businessLog.setMarketId(settleOrder.getMarketId());
         businessLog.setOperatorId(settleOrder.getOperatorId());
         businessLog.setOperatorName(settleOrder.getOperatorName());
-        businessLog.setBusinessType(BizTypeEnum.getBizTypeEnum(settleOrder.getBusinessType()).getEnName());
+        businessLog.setBusinessType(bizType);
         businessLog.setSystemCode("IA");
         return businessLog;
     }

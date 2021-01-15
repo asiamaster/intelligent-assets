@@ -558,7 +558,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			stockService.stockDeduction(detail, stockIn.getCustomerId(), refundOrder.getCode());
 		});*/
 		//记录退款日志
-        msgService.sendBusinessLog(recordRefundLog(refundOrder, stockIn.getId(), stockIn.getCode()));
+        msgService.sendBusinessLog(recordRefundLog(refundOrder, BizTypeEnum.STOCKIN.getEnName(),stockIn.getId(), stockIn.getCode()));
         LoggerUtil.buildLoggerContext(stockIn.getId(), stockIn.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
 
 	}
@@ -687,7 +687,7 @@ public class StockInServiceImpl extends BaseServiceImpl<StockIn, Long> implement
 			updateStockIn(domain, code, stockIn.getVersion(), StockInStateEnum.PAID);
 		}
 		//记录缴费
-        msgService.sendBusinessLog(recordPayLog(settleOrder, stockIn.getId(), stockIn.getCode()));
+        msgService.sendBusinessLog(recordPayLog(settleOrder,BizTypeEnum.STOCKIN.getEnName(), stockIn.getId(), stockIn.getCode()));
 	}
 
 	@Override
