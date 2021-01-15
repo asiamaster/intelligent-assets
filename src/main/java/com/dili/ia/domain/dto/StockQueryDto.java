@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import com.dili.ia.domain.Stock;
 import com.dili.ss.domain.BaseDomain;
 import com.dili.ss.domain.annotation.Like;
+import com.dili.ss.domain.annotation.Operator;
 
 /**
  * <B>Description</B>
@@ -32,6 +33,10 @@ public class StockQueryDto extends Stock{
 	private LocalDateTime startTime;
 	
 	private LocalDateTime endTime;
+	
+	@Column(name = "`quantity`")
+	@Operator(Operator.GREAT_THAN)
+	private Long quantity;
 
 	public LocalDate getDay() {
 		return day;
@@ -63,6 +68,14 @@ public class StockQueryDto extends Stock{
 
 	public void setLikeCustomerName(String likeCustomerName) {
 		LikeCustomerName = likeCustomerName;
+	}
+
+	public Long getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Long quantity) {
+		this.quantity = quantity;
 	}
 	
 	

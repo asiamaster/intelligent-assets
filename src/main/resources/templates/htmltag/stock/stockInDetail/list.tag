@@ -44,7 +44,7 @@
                      <th data-field="amount" data-sortable="true" data-sort-name="amount" data-align="center" data-provider="moneyProvider">
                        入库金额
                     </th>
-                    <th data-field="createTime" data-sortable="true" data-sort-name="create_time" data-align="center" data-provider="dateProvider">
+                    <th data-field="stockInDate" data-sortable="true" data-sort-name="create_time" data-align="center" data-provider="dateProvider">
                         入库日期
                     </th>
                      <th data-field="expireDate" data-sortable="true" data-sort-name="weight" data-align="center" data-provider="dateProvider" >

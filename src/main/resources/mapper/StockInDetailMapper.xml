@@ -12,7 +12,7 @@
   <select id="selectByContion" parameterType="com.dili.ia.domain.dto.StockInDetailQueryDto" resultType="map">
     select 
     <include refid="Base_Column_List" />,type,customer_id,customer_name customerName,customer_cellphone customerCellphone,department_id,department_name departmentName,
-    expire_date expireDate,si.state state,sid.assets_code assetsCode
+    expire_date expireDate,si.stock_in_date as stockInDate,si.state state,sid.assets_code assetsCode
     from stock_in_detail as sid join stock_in as si on sid.stock_in_code = si.code
     <where>
             <if test="districtId != null">
@@ -26,6 +26,9 @@
             </if>
             <if test="categoryId != null">
                 and sid.category_id = #{categoryId}
+            </if>
+             <if test="customerId != null">
+                and si.customer_id = #{customerId}
             </if>
             <if test="customerName != null">
                 and si.customer_name like concat('%',#{customerName},'%') 
