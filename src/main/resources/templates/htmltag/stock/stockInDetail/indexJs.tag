@@ -11,6 +11,15 @@ let duration = 2;
 let timeUnit = "day"
 $(".laystart").attr("value", moment().subtract(duration, timeUnit).startOf('day').format('YYYY-MM-DD HH:mm:ss'));
 $(".layend").attr("value", moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'));
+laydate.render({
+	elem: '#createdEnd',
+	theme: '#007bff',
+	trigger: 'click',
+	format: 'yyyy-MM-dd 23:59:59',
+	done: function(value, date){
+		//监听日期被切换
+	}
+});
 /*********************变量定义区 end***************/
 
 /******************************驱动执行区 begin***************************/

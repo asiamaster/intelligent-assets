@@ -52,8 +52,12 @@
     <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+				<#resource code="stockOut">
 				<button id="btn_view" type="button" class="btn btn-primary" onclick="openStockOutHandler()"><i class="fa fa-eye"></i> 出库</button>
-                <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(2)"><i class="fa fa-eye"></i> 下载</button>
+            	</#resource>
+            	<#resource code="doExport">
+            	<button id="export" type="button" class="btn btn-primary btn_export" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
+           		</#resource>
             </div>
             <table id="grid" data-toggle="table" data-title="库存列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"

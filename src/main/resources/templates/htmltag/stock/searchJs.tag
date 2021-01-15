@@ -97,7 +97,12 @@ $(document).on('change', '#district-one', function() {
 	getAssets($("#assetsId"),$(this).val(),1);
 });
 $(document).on('change', '#district-two', function() {
-	getAssets($("#assetsId"),$(this).val(),2);
+	if(strIsEmpty($(this).val())){
+		getAssets($("#assetsId"),$("#district-one").val(),1);
+	}else{
+		getAssets($("#assetsId"),$(this).val(),2);
+	}
+	
 });
 
 //冷库区域变更  对应子单的冷库更新
