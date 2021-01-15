@@ -55,6 +55,7 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
 
     @Override
     public List<BusinessChargeItemDto> queryFixedBusinessChargeItemConfig(Long marketId, String bizType, Integer isEnable, Integer fixed, String code) {
+        this.checkParam(marketId, bizType, isEnable, fixed, code);
         BusinessChargeItemDto businessChargeItemDto = new BusinessChargeItemDto();
         businessChargeItemDto.setMarketId(marketId);
         businessChargeItemDto.setBusinessType(bizType);
@@ -73,6 +74,24 @@ public class BusinessChargeItemServiceImpl extends BaseServiceImpl<BusinessCharg
         }catch (Exception e){
             LOG.error("查询收费项服务异常!，参数：{},原因：{}", businessChargeItemDto.toString(), e.getMessage());
             throw new BusinessException(ResultCode.APP_ERROR, "查询收费项服务异常!");
+        }
+    }
+
+    private void checkParam(Long marketId, String bizType, Integer isEnable, Integer fixed, String code){
+        if (null == marketId){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数市场ID【marketId】不能为空!");
+        }
+        if (null == bizType){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数业务类型【bizType】不能为空!");
+        }
+        if (null == isEnable){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数收费项是否可以状态【isEnable】不能为空!");
+        }
+        if (null == fixed){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数是否规定【fixed】不能为空!");
+        }
+        if (null == code){
+            throw new BusinessException(ResultCode.PARAMS_ERROR, "参数静态code【code】不能为空!");
         }
     }
 

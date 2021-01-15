@@ -437,7 +437,8 @@ public class EarnestOrderServiceImpl extends BaseServiceImpl<EarnestOrder, Long>
         }
         sfItem.setChargeItemId(chargeItemDto.getId()); //静态收费项
         sfItem.setChargeItemName(chargeItemDto.getChargeItem()); //静态收费项
-        sfItem.setFeeType(chargeItemDto.getSystemSubject()); //定金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
+        //定金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
+        sfItem.setFeeType(chargeItemDto.getSystemSubject());
         Optional<BusinessChargeItemEnum.SystemSubjectType> instance = BusinessChargeItemEnum.SystemSubjectType.getInstance(chargeItemDto.getSystemSubject());
         if (instance.isPresent()){
             //定金费用类型名称

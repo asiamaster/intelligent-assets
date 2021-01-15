@@ -1,9 +1,13 @@
 package com.dili.ia.service.impl;
 
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.assets.sdk.enums.BusinessChargeItemEnum;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.DepositOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.RefundOrderMapper;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.DepositOrderService;
 import com.dili.ia.service.RefundOrderDispatcherService;
@@ -37,6 +41,9 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
     public RefundOrderMapper getActualDao() {
         return (RefundOrderMapper)getDao();
     }
+
+    @Autowired
+    BusinessChargeItemService businessChargeItemService;
     @Autowired
     DepositOrderService depositOrderService;
     @Autowired
@@ -116,10 +123,25 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setChargeItemId(ChargeItemEnum.保证金.getId()); //静态收费项
-        sfItem.setChargeItemName(ChargeItemEnum.保证金.getName()); //静态收费项
-        sfItem.setFeeType(FeeTypeEnum.保证金.getCode()); //保证金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
-        sfItem.setFeeName(FeeTypeEnum.保证金.getName()); //保证金费用类型名称
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(refundOrder.getMarketId(), BizTypeEnum.DEPOSIT_ORDER.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.DEPOSIT_ORDER.getEnName());
+        BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
+        if (null == chargeItemDto){
+            LOG.info("保证金单业务没有查询到固定的【保证金】收费项，code={}", BizTypeEnum.DEPOSIT_ORDER.getEnName());
+            throw new BusinessException(ResultCode.DATA_ERROR, "保证金单业务没有查询到固定的【保证金】收费项");
+        }
+        //静态收费项
+        sfItem.setChargeItemId(chargeItemDto.getId());
+        //静态收费项
+        sfItem.setChargeItemName(chargeItemDto.getChargeItem());
+        //保证金费用类型固定，必须传，结算根据这个要做特殊处理，来源于动态收费项的（system_subject 系统科目）
+        sfItem.setFeeType(chargeItemDto.getSystemSubject());
+        Optional<BusinessChargeItemEnum.SystemSubjectType> instance = BusinessChargeItemEnum.SystemSubjectType.getInstance(chargeItemDto.getSystemSubject());
+        if (instance.isPresent()){
+            //保证金费用类型名称
+            sfItem.setFeeName(instance.get().getName());
+        }else {
+            throw new BusinessException(ResultCode.DATA_ERROR,"根据费用类型，未获取到费用类型名称");
+        }
         sfItem.setAmount(refundOrder.getTotalRefundAmount());
         settleFeeItemList.add(sfItem);
 
