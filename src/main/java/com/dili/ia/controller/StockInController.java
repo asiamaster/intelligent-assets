@@ -209,7 +209,7 @@ public class StockInController {
      * @return BaseOutput
      */
     @RequestMapping(value="/submit.action", method = {RequestMethod.GET, RequestMethod.POST})
-    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "submit", systemCode = "IA")
+    @BusinessLogger(businessType = LogBizTypeConst.STOCK, content = "${code}", operationType = "submitPayment", systemCode = "IA")
     public @ResponseBody BaseOutput submit(String code) {
         try {
             stockInService.submit(code);

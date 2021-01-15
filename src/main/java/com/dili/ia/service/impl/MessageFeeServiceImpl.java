@@ -39,12 +39,14 @@ import com.dili.ia.rpc.MessageFeeRpc;
 import com.dili.ia.rpc.SettlementRpcResolver;
 import com.dili.ia.rpc.UidRpcResolver;
 import com.dili.ia.service.BusinessChargeItemService;
+import com.dili.ia.service.BusinessLogService;
 import com.dili.ia.service.MessageFeeService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundFeeItemService;
 import com.dili.ia.service.RefundOrderService;
 import com.dili.ia.util.LoggerUtil;
 import com.dili.ia.util.SettleOrderLinkUtils;
+import com.dili.logger.sdk.component.MsgService;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -76,7 +78,7 @@ import io.seata.spring.annotation.GlobalTransactional;
  * This file was generated on 2020-08-24 16:16:50.
  */
 @Service
-public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> implements MessageFeeService {
+public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> implements MessageFeeService,BusinessLogService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(MessageFeeServiceImpl.class);
 	
@@ -110,6 +112,9 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 	
 	@Autowired
 	private RefundFeeItemService refundFeeItemService;
+	
+	@Autowired
+	private MsgService msgService;
 	
 	@Value("${settlement.app-id}")
 	private Long settlementAppId;
@@ -344,7 +349,8 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
         	syncState(messageFee.getCode(), 2);
 		} catch (Exception e) {
             LOG.error("【白名单推送】接口调用异常!");
-		}	
+		}
+        msgService.sendBusinessLog(recordRefundLog(refundOrder,BizTypeEnum.MESSAGEFEE.getEnName()  ,messageFee.getId(), messageFee.getCode()));
 	}
 
 	@Override
@@ -385,7 +391,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 		} catch (Exception e) {
             LOG.error("【白名单推送】接口调用异常!");
 		}
-        LoggerUtil.buildLoggerContext(messageFee.getId(), messageFee.getCode(), settleOrder.getOperatorId(), settleOrder.getOperatorName(), settleOrder.getMarketId(), null);
+        msgService.sendBusinessLog(recordPayLog(settleOrder,BizTypeEnum.MESSAGEFEE.getEnName() ,messageFee.getId(), messageFee.getCode()));
 
 	}
 	

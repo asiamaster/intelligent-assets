@@ -31,6 +31,8 @@ import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.session.SessionContext;
 import com.google.common.collect.Sets;
 
+import cn.hutool.core.bean.BeanUtil;
+
 /**
  * <B>Description</B>
  * 本软件源代码版权归农丰时代及其团队所有,未经许可不得任意复制与传播
@@ -106,12 +108,12 @@ public class StockInRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
 
 	@Override
 	public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-		PrintDataDto<StockInPrintDto> print = stockInService.receiptRefundData(refundOrder, "reprint");
+		PrintDataDto<StockInPrintDto> print = stockInService.receiptRefundData(refundOrder, "");
 		 Map<String, Object> resultMap = new HashMap<>();
         //已交清退款单打印数据
         resultMap.put("printTemplateCode",print.getName());
         //根据要求拼装订单项
-        resultMap.putAll(BeanMapUtil.beanToMap(print.getItem()));
+        resultMap.putAll(BeanUtil.beanToMap(print.getItem(), false, true));
         return BaseOutput.success().setData(resultMap);	
     }
 

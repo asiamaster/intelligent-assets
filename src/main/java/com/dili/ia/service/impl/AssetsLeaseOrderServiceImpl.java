@@ -223,6 +223,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
                 throw new BusinessException(ResultCode.DATA_ERROR, "租赁单编号【" + oldLeaseOrder.getCode() + "】 状态已变更，不可以进行修改操作");
             }
             dto.setWaitAmount(dto.getTotalAmount());
+            dto.setIsRenew(null);
             SpringUtil.copyPropertiesIgnoreNull(dto, oldLeaseOrder);
             oldLeaseOrder.setBatchId(dto.getBatchId());
             oldLeaseOrder.setContractNo(dto.getContractNo());
