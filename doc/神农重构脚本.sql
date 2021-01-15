@@ -153,4 +153,7 @@ ADD COLUMN `submitter_id` bigint(20) DEFAULT NULL COMMENT '交费提交人ID' AF
 ADD COLUMN `submitter` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '交费提交人名称' AFTER `submitter_id`,
 ADD COLUMN `refund_id` bigint(20) DEFAULT NULL COMMENT '退款提交人ID' AFTER `submitter`,
 ADD COLUMN `refunder` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '退款提交人名称' AFTER `refund_id`;
+--摊位预设
+ALTER TABLE dili_ia.assets_rental MODIFY COLUMN start_time datetime DEFAULT NULL;
+ALTER TABLE dili_ia.assets_rental MODIFY COLUMN end_time datetime DEFAULT NULL;
 

@@ -634,7 +634,7 @@ public class OtherFeeServiceImpl extends BaseServiceImpl<OtherFee, Long> impleme
 		} else {
 			// 现金以及其他支付方式
 			settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【" + ( order.getChargeDate() == null ? "" : order.getChargeDate())
-					+ "  流水号：" + ("".equals(order.getSerialNumber()) ? "":order.getSerialNumber()) + "  备注：" + ("".equals(order.getNotes()) ? "" :order.getNotes()) + "】";
+					+ "  流水号：" + ("".equals(order.getSerialNumber()) || order.getSerialNumber() == null ? "":order.getSerialNumber()) + "  备注：" + ("".equals(order.getNotes()) ? "" :order.getNotes()) + "】";
 		}
 		otherFeePrintDto.setSettleWayDetails(settleDetails);
 
