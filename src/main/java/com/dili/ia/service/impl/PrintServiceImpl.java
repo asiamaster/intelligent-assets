@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class PrintServiceImpl implements PrintService {
         AssetsLeaseOrder leaseOrder = assetsLeaseOrderService.get(paymentOrder.getBusinessId());
         PrintDataDto<LeaseOrderPrintDto> printDataDto = new PrintDataDto<LeaseOrderPrintDto>();
         LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
-        leaseOrderPrintDto.setPrintTime(LocalDate.now());
+        leaseOrderPrintDto.setPrintTime(LocalDateTime.now());
         leaseOrderPrintDto.setReprint(reprint == 2 ? "(补打)" : "");
         leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
         leaseOrderPrintDto.setBusinessType(BizTypeEnum.getBizTypeEnum(leaseOrder.getBizType()).getName());
@@ -340,7 +340,7 @@ public class PrintServiceImpl implements PrintService {
     private LeaseOrderPrintDto buildLeaseOrderPrintDto(AssetsLeaseOrder leaseOrder, List<AssetsLeaseOrderItem> leaseOrderItems, PaymentOrder paymentOrder, Boolean isBuildChargeItem) {
         LeaseOrderPrintDto leaseOrderPrintDto = new LeaseOrderPrintDto();
         leaseOrderPrintDto.setBusinessType(BizTypeEnum.EARNEST.getName());
-        leaseOrderPrintDto.setPrintTime(LocalDate.now());
+        leaseOrderPrintDto.setPrintTime(LocalDateTime.now());
         leaseOrderPrintDto.setLeaseOrderCode(leaseOrder.getCode());
         leaseOrderPrintDto.setCustomerName(leaseOrder.getCustomerName());
         leaseOrderPrintDto.setCustomerCellphone(leaseOrder.getCustomerCellphone());
