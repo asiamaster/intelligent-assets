@@ -169,7 +169,7 @@
 
                     dia = bs4pop.dialog({
                         title: '修改租赁',
-                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&isRenew=' + rows[0].isRenew + '&bizType=' + $('#bizType').val(),
+                        content: '/leaseOrder/preSave.html?id=' + rows[0].id + '&bizType=' + $('#bizType').val(),
                         isIframe : true,
                         closeBtn: true,
                         backdrop : 'static',
@@ -1043,14 +1043,16 @@
             e.stopPropagation();
             let state = row.$_state;
             $('#toolbar'+index+' button').attr('disabled', true);
-            //（未生效 || 已生效）&& 已交清方可停租
-            if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}
-            ) {
-                $('#btn_stop_rent'+index).attr('disabled', false);
-            }
+            if (state != ${@com.dili.ia.glossary.LeaseOrderItemStateEnum.INVALIDATED.getCode()}) {
+                //（未生效 || 已生效）&& 已交清方可停租
+                if (state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.NOT_ACTIVE.getCode()} || state == ${@com.dili.ia.glossary.LeaseOrderStateEnum.EFFECTIVE.getCode()}
+                ) {
+                    $('#btn_stop_rent'+index).attr('disabled', false);
+                }
 
-            if(row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()} && row.paidAmount > 0 ){
-                $('#btn_refund_apply'+index).attr('disabled', false);
+                if(row.$_refundState == ${@com.dili.ia.glossary.LeaseRefundStateEnum.WAIT_APPLY.getCode()} && row.paidAmount > 0 ){
+                    $('#btn_refund_apply'+index).attr('disabled', false);
+                }
             }
         });
     });
