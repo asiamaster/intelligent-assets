@@ -1,11 +1,7 @@
 <script>
 
     $(()=>{
-        if($('[name="id"]').val()){
-            $('#assetsId, #assetsName, #assetsNameInput').hide();
-        } else {
-            $('#assetsNameInput').hide();
-        }
+        // $('#assetsType').trigger('change')
     })
 
     // 获取当前区域下资产的编号数据
@@ -41,21 +37,23 @@
         }
     }
 
+    // 资产类型改变，资产地址输入方式更改。
     $('#assetsType').on('change', function(){
         $('#assetsName-error').remove();
         $('#assetsId, #assetsName, #assetsNameInput').val('');
-        $('#assetsName, #assetsNameInput').attr('name', '').hide();
-        if($(this).val() != 100 ) {
-            $('#assetsName').attr('name', 'assetsName').show();
+        $('#assetsName, #assetsNameInput').attr('name', '').removeClass('d-none');
+        if($(this).val() == 100 ) {
+            // 为'其他'时
+            $('#assetsName').addClass('d-none');
+            $('#assetsNameInput').attr('name', 'assetsName');
         } else {
-            $('#assetsNameInput').attr('name', 'assetsName').show();
+            $('#assetsName').attr('name', 'assetsName');
+            $('#assetsId').attr('name', 'assetsId');
+            $('#assetsNameInput').addClass('d-none');
         }
     })
 
-    $('#chargeItemId').on('change',  function () {
-        $('#chargeItemName').val($(this.data('chargeItemName')))
-    })
-
+    // 区域改变，
     $('#firstDistrictId, #secondDistrictId').change(function () {
         let id  = $(this).attr('id');
         $('#assetsType').trigger("change");

@@ -135,7 +135,6 @@
         if(isSelectRow()){
             bs4pop.confirm('提交后该信息不可更改，并且可进行缴费，确认提交？', {}, bui.util.debounce(function (sure) {
                 if (sure) {
-                    debugger;
                     bui.loading.show('努力提交中，请稍候。。。');
                     //获取选中行的数据
                     let rows = _grid.bootstrapTable('getSelections');
