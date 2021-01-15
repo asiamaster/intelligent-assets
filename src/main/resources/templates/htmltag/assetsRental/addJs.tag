@@ -250,7 +250,6 @@
             let firstMchId = $('.booth-data-origin .custom-control:first-child .custom-control-input').data('mch-id')
 
             $.each($('.booth-data-origin .custom-control .custom-control-input'), function (index, item) {
-                debugger
                 if($(item).data('mch-id') == firstMchId) {
                     $(item).prop('checked', true);
                 }
@@ -313,7 +312,6 @@
 
 
         let buildData = JSON.stringify($.extend({}, $('#saveForm :not(#categorys)').serializeObject(), {categoryId: categoryId.join(), categoryName: categoryName.join()},  {assetsRentalItemList: boothCheckedData, mchId: TheMerchantsId}));
-       debugger;
         bui.loading.show('努力提交中，请稍候。。。');
         console.log('buildData:',  buildData)
 

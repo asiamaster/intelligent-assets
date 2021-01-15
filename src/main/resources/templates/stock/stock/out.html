@@ -22,6 +22,7 @@
             <div class="form-group col">
                 <label for="assetsId">冷库编号</label>
                 <select id="assetsId" name="assetsId" class="form-control" required>
+                <option value="">-- 全部 --</option>
                 </select>
             </div>
             <div class="form-group col">
@@ -36,8 +37,8 @@
                 <input type="text" class="form-control" name="likeCustomerName" id="customerName" maxlength="50"/>
             </div>
             <div class="form-group col">
-                <label for="customerCellPhone">手机号</label>
-                <input type="text" class="form-control" name="customerCellPhone" id="customerCellPhone" maxlength="50"/>
+                <label for="customerCellphone">手机号</label>
+                <input type="text" class="form-control" name="customerCellphone" id="customerCellphone" maxlength="50"/>
             </div>
             <div class="col align-self-center mt-3">
                 <button id="clear" type="button" class="btn btn-outline-primary mr-2" onclick="javascript:$('#queryForm .form-control').val('');"><i class="fa fa-refresh"></i> 清空</button>
@@ -51,8 +52,12 @@
     <div class="row">
         <div class="col-12">
             <div id="toolbar" class="btn-group" role="group" aria-label="Toolbar with button groups">
+				<#resource code="stockOut">
 				<button id="btn_view" type="button" class="btn btn-primary" onclick="openStockOutHandler()"><i class="fa fa-eye"></i> 出库</button>
-                <button id="btn_view" type="button" class="btn btn-primary" onclick="openAddHandler(2)"><i class="fa fa-eye"></i> 下载</button>
+            	</#resource>
+            	<#resource code="doExport">
+            	<button id="export" type="button" class="btn btn-primary btn_export" onclick="bui.util.doExport('grid','queryForm')"><i class="fa fa-download"></i> 导出</button>
+           		</#resource>
             </div>
             <table id="grid" data-toggle="table" data-title="库存列表" class="table" data-toolbar="#toolbar" data-pagination="true" data-page-number="1" data-page-size="5"
                    data-query-params="queryParams" data-side-pagination="server" data-method="POST" data-content-type="application/x-www-form-urlencoded" data-single-select="true"
@@ -100,16 +105,16 @@
         <div class="row row-cols-1 detail" id="detailInfo">
             <input type="hidden" class="form-control" name="stockId" value="{{selectedRow.id}}" required />
             <div class="form-group col">
-                <label for="" class="">当前库存：<i class="red">*</i></label> <input id="stockQuantity" type="number" class="form-control floatReserve"
-                 name="stockQuantity" range="0 9999999" value="{{selectedRow.quantity}}" readonly required />
+                <label for="" class="">当前库存：</label> <input id="stockQuantity" type="number" class="form-control floatReserve"
+                 name="stockQuantity"  value="{{selectedRow.quantity}}" readonly required />
             </div>
             <div class="form-group col">
-                <label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve"
-                 placeholder="最大出库件数{{selectedRow.quantity}}" name="quantity" range="1 {{selectedRow.quantity}}"  required />
+                <label for="weight" class="">出库件数：<i class="red">*</i></label> <input id="quantity" type="number" class="form-control floatReserve digits"
+                 placeholder="最大出库件数{{selectedRow.quantity}}" name="quantity" range="1 {{selectedRow.quantity}}"  required range="0 99999999" />
             </div>
             <div class="form-group col">
                 <label for="notes">备注</label>
-                <textarea id="notes" class="form-control" name="notes" rows="1" maxlength="100" ></textarea>
+                <textarea id="notes" class="form-control" name="notes" rows="3" maxlength="100" ></textarea>
             </div>
         </div>
 	</form>			

@@ -7,8 +7,7 @@
                 <% if (@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg') { %>
                 <a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
                 <% }%>
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
-                   aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
+
             </div>
             <div class="row row-cols-2 collapse show"  id="customerInfo">
                 <div class="form-group col">
@@ -28,7 +27,6 @@
             </div>
             <div class="breadcrumb">
                 基础信息
-                <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
             </div>
             <div class="row row-cols-2 collapse show" id="baseInfo">
                 <div class="form-group col">
@@ -56,7 +54,7 @@
                 <div class="form-group col">
                     <label for="assetsName" class="">资产编号</label>
                     <#bautoCompleteProvider _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
-                    <input id="assetsNameInput" type="text" class="form-control"/>
+                    <input id="assetsNameInput" type="text" class="form-control d-none"/>
 
                 </div>
             

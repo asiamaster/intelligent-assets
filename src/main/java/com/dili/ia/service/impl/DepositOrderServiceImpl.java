@@ -1569,6 +1569,7 @@ public class DepositOrderServiceImpl extends BaseServiceImpl<DepositOrder, Long>
         param.setMarketId(userTicket.getFirmId());
         param.setOperatorId(userTicket.getId());
         param.setOperatorName(userTicket.getRealName());
+        param.setOperatorNo(userTicket.getUserName());
         List<String> orderCodeList = new ArrayList<>();
         orderCodeList.addAll(paymentOrderList.stream().map(PaymentOrder::getCode).collect(Collectors.toList()));
         param.setOrderCodeList(orderCodeList);

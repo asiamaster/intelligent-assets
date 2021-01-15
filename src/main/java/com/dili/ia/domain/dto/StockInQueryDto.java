@@ -46,6 +46,10 @@ public class StockInQueryDto extends StockIn {
 	@Operator(Operator.LITTLE_EQUAL_THAN)
 	private LocalDateTime stockInEnd;
 	
+	@Column(name = "`operator_name`")
+	@Like
+	private String likeOperatorName;
+	
 	@Column(name = "`customer_name`")
 	@Like
 	private String likeCustomerName;
@@ -116,6 +120,14 @@ public class StockInQueryDto extends StockIn {
 
 	public void setStockInEnd(LocalDateTime stockInEnd) {
 		this.stockInEnd = stockInEnd;
+	}
+
+	public String getLikeOperatorName() {
+		return likeOperatorName;
+	}
+
+	public void setLikeOperatorName(String likeOperatorName) {
+		this.likeOperatorName = likeOperatorName;
 	}
 	
 	

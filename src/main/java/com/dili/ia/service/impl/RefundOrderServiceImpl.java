@@ -1,23 +1,6 @@
 package com.dili.ia.service.impl;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import cn.hutool.core.collection.CollectionUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dili.assets.sdk.rpc.AssetsRpc;
@@ -43,20 +26,10 @@ import com.dili.ia.domain.dto.ApprovalParam;
 import com.dili.ia.domain.dto.RefundOrderDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.RefundOrderPrintDto;
-import com.dili.ia.glossary.ApprovalResultEnum;
-import com.dili.ia.glossary.ApprovalStateEnum;
-import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.BpmEventConstants;
-import com.dili.ia.glossary.EarnestOrderStateEnum;
-import com.dili.ia.glossary.RefundOrderStateEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.AssetsLeaseOrderItemMapper;
 import com.dili.ia.mapper.RefundOrderMapper;
-import com.dili.ia.service.AccountService;
-import com.dili.ia.service.ApprovalProcessService;
-import com.dili.ia.service.BusinessChargeItemService;
-import com.dili.ia.service.RefundFeeItemService;
-import com.dili.ia.service.RefundOrderDispatcherService;
-import com.dili.ia.service.RefundOrderService;
+import com.dili.ia.service.*;
 import com.dili.ia.util.BeanMapUtil;
 import com.dili.ia.util.LogBizTypeConst;
 import com.dili.ia.util.LoggerUtil;
@@ -83,12 +56,25 @@ import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
 import com.dili.uap.sdk.domain.UserTicket;
 import com.dili.uap.sdk.exception.NotLoginException;
-import com.dili.uap.sdk.redis.UserResourceRedis;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
-
-import cn.hutool.core.collection.CollectionUtil;
 import io.seata.spring.annotation.GlobalTransactional;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <B>Description</B>
@@ -141,8 +127,6 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     private String settlerPrintUrl;
     @Resource
     private BpmDefKeyConfig bpmDefKeyConfig;
-    @Autowired
-    private UserResourceRedis userResourceRedis;
     @Autowired
     private AccountService accountService;
     

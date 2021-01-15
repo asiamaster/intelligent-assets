@@ -130,7 +130,7 @@ public class BoutiqueRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
      */
     @Override
     public BaseOutput<Map<String, Object>> buildBusinessPrintData(RefundOrder refundOrder) {
-        PrintDataDto<BoutiqueEntrancePrintDto> reprint = boutiqueEntranceRecordService.receiptRefundPrintData(refundOrder.getCode(), "reprint");
+        PrintDataDto<BoutiqueEntrancePrintDto> reprint = boutiqueEntranceRecordService.receiptRefundPrintData(refundOrder.getCode(), 2);
         Map<String, Object> resultMap = new HashMap<>();
         //已交清退款单打印数据
         resultMap.put("printTemplateCode",reprint.getName());

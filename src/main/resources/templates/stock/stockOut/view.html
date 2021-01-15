@@ -1,5 +1,5 @@
 <#bs4Body>
-	<div class="container-fluid" value="${type!}">
+	<div class="container-fluid" value="${type!'--'}">
 	
 		<form id="saveForm" role="form" novalidate>
 			<div class="breadcrumb">
@@ -9,12 +9,12 @@
 				<div class="form-group col">
 					<label for="customerName">客户名称<i class="red">*</i></label>
 					<input id="customerName" type="text" class="form-control  "
-					 name="customerName" value="${stockOut.customerName!}" readonly />
+					 name="customerName" value="${stockOut.customerName!'--'}" readonly />
 				</div>
 				
 				<div class="form-group col">
 					<label for="">联系电话<i class="red">*</i></label> <input id="customerCellphone" type="text" class="form-control  "
-					 name="customerCellphone" value="${stockOut.customerCellphone!}" readonly />
+					 name="customerCellphone" value="${stockOut.customerCellphone!'--'}" readonly />
 				</div>
 			</div>
 			<div class="breadcrumb">
@@ -23,27 +23,27 @@
 			<div class="row row-cols-4 collapse show" id="stockDetailInfo">
 				<div class="form-group col">
 					<label for="">出库单号<i class="red">*</i></label> <input id="assetsId" type="text" class="form-control  "
-					 name="assetsId" value="${stockOut.code!}" readonly />
+					 name="assetsId" value="${stockOut.code!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">部门<i class="red">*</i></label> <input id="assetsId" type="text" class="form-control  "
-					 name="assetsId" value="${stockOut.departmentName!}" readonly />
+					 name="assetsId" value="${stockOut.departmentName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">品类<i class="red">*</i></label> <input id="assetsId" type="text" class="form-control  "
-					 name="assetsId" value="${stockOut.categoryName!}" readonly />
+					 name="assetsId" value="${stockOut.categoryName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">冷库区域<i class="red">*</i></label> <input id="assetsId" type="text" class="form-control  "
-					 name="assetsId" value="${stockOut.districtId!}" readonly />
+					 name="assetsId" value="${stockOut.districtName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">冷库编号<i class="red">*</i></label> <input id="assetsId" type="text" class="form-control  "
-					 name="assetsId" value="${stockOut.assetsId!}" readonly />
+					 name="assetsId" value="${stockOut.assetsName!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">出库件数<i class="red">*</i></label> <input id="quantity" type="text" class="form-control  "
-					 name="quantity" value="${stockOut.quantity!}" readonly />
+					 name="quantity" value="${stockOut.quantity!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">出库日期<i class="red">*</i></label> <input id="expireDate" type="text" class="form-control  "
@@ -51,11 +51,11 @@
 				</div>
 				<div class="form-group col">
 					<label for="">操作员<i class="red">*</i></label> <input id="assetsId" type="text" class="form-control  "
-					 name="assetsId" value="${stockOut.creator!}" readonly />
+					 name="assetsId" value="${stockOut.creator!'--'}" readonly />
 				</div>
 				<div class="form-group col">
 					<label for="">备注<i class="red">*</i></label> <input id="notes" type="text" class="form-control  "
-					 name="notes" value="${stockOut.notes!}" readonly />
+					 name="notes" value="${stockOut.notes!'--'}" readonly />
 				</div>
 			</div>
 			

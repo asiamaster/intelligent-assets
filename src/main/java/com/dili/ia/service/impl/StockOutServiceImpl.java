@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,7 +43,7 @@ public class StockOutServiceImpl extends BaseServiceImpl<StockOut, Long> impleme
 		stockOutPrintDto.setPrintTime(LocalDateTime.now());
 		stockOutPrintDto.setBusinessType(BizTypeEnum.STOCKOUT.getCode());
 		stockOutPrintDto.setSubmitter(stockOut.getCreator());
-		stockOutPrintDto.setNotes("备注:"+stockOut.getNotes());
+		stockOutPrintDto.setNotes("备注:"+(StringUtils.isEmpty(stockOut.getNotes())?"":stockOut.getNotes()));
 		stockOutPrintDto.setCustomerName(stockOut.getCustomerName());
 		PrintDataDto<StockOutPrintDto> printDataDto = new PrintDataDto<>();
 		printDataDto.setItem(stockOutPrintDto);

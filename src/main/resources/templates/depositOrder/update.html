@@ -10,8 +10,6 @@
             <% if (@com.dili.uap.sdk.session.SessionContext.getSessionContext().getUserTicket().getFirmCode() =='sg') { %>
             <a href="javascript:;" class="ml-2" id="icReader">刷园区卡</a>
             <% }%>
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#customerInfo" aria-expanded="true"
-               aria-controls="customerInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div class="row row-cols-2 collapse show" id="customerInfo">
             <div class="form-group col">
@@ -29,7 +27,6 @@
         </div>
         <div class="breadcrumb">
             基础信息
-            <a href="javascript:;" class="ml-auto" data-toggle="collapse" data-target="#baseInfo" aria-expanded="true" aria-controls="baseInfo">收起 <i class="fa fa-angle-double-up" aria-hidden="true"></i></a>
         </div>
         <div class="row row-cols-2 collapse show" id="baseInfo">
             <div class="form-group col">
@@ -56,8 +53,8 @@
             </div>
             <div class="form-group col">
                 <label for="assetsName" class="" >资产编号</label>
-                <#bautoCompleteProvider _log="资产编号"  _displayDomainClass="${depositOrder.assetsType != 100? 'd-block' : ''}"  _value="${depositOrder.assetsId!}" _text="${depositOrder.assetsName!}" _hiddenDomainId="assetsId" _hiddenDomainName="assetsId" _displayDomainId="assetsName" _displayDomainName="assetsName" _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
-                <input id="assetsNameInput" type="text" class="form-control <%if (depositOrder.assetsType == 100){%> d-block"  <%} else {%>   "  <%}%> value="${depositOrder.assetsName!}"  />
+                <#bautoCompleteProvider _log="资产编号"  _displayDomainClass="${depositOrder.assetsType == 100? 'd-none' : ''}"   _value="${depositOrder.assetsId!}" _text="${depositOrder.assetsName!}" _hiddenDomainId="assetsId" _hiddenDomainName="${depositOrder.assetsType != 100? 'assetsId' : ''}" _displayDomainId="assetsName"  _displayDomainName="${depositOrder.assetsType != 100? 'assetsName' : ''}"  _placeholder="" _validatorMethod="isSelected" _optionVariable="boothAutoCompleteOption"/>
+                <input id="assetsNameInput" type="text" class="form-control <%if (depositOrder.assetsType != 100){%> d-none"  <%} else {%> " name="assetsName" <%}%>  value="${depositOrder.assetsName!}"  />
             </div>
             <div class="form-group col">
                 <label for="amount" _log class="">保证金金额<i class="red">*</i></label>
