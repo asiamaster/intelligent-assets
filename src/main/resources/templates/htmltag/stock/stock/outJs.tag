@@ -66,7 +66,7 @@ function openStockOutHandler() {
 				selectedRow
 			})), //对话框内容，可以是 string、element，$object
 			width: '30%', //宽度
-			height: '70%', //高度
+			height: '80%', //高度
 			btns: [{
 				label: '取消',
 				className: 'btn btn-secondary',
@@ -132,7 +132,11 @@ function stockOut() {
 	});
 }
 
+$.validator.addMethod('digits', function( value, element ){
 
+    return this.optional( element ) || /^[1-9]\d*$/.test( value );
+
+}, '只能输入正整数');
 /*****************************************函数区 end**************************************/
 /*****************************************自定义事件区 begin************************************/
 
