@@ -1231,6 +1231,7 @@ public class AssetsLeaseOrderServiceImpl extends BaseServiceImpl<AssetsLeaseOrde
             }
 
             SpringUtil.copyPropertiesIgnoreNull(refundOrderDto, oldRefundOrder);
+            oldRefundOrder.setRemark(refundOrderDto.getRemark());
             if (!refundOrderService.doUpdatedHandler(oldRefundOrder).isSuccess()) {
                 LOG.info("租赁单【编号：{}】退款修改接口异常", refundOrderDto.getBusinessCode());
                 throw new BusinessException(ResultCode.DATA_ERROR, "退款修改接口异常");
