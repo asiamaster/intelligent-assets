@@ -206,7 +206,11 @@
                 TheMerchantsId = '';
             } else if (checkingLen == 1) {
                 // 首个被选中时，商户id设为这个的商户id
-                TheMerchantsId = $(this).data('mch-id');
+                if($(this).data('mch-id') != '') {
+                    TheMerchantsId = $(this).data('mch-id');
+                } else {
+                    bs4pop.notice('未指定对应的入账组织，不能操作', {position: 'topcenter', type: 'danger'});
+                }
             } else if ($(this).data('mch-id') != TheMerchantsId){
                 $(this).prop('checked', false)
                 bs4pop.notice('不属于同一个商户', {position: 'topcenter', type: 'danger'});
