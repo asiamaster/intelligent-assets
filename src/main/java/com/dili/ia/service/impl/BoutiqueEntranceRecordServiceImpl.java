@@ -1,13 +1,16 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.TypeMarketDto;
 import com.dili.assets.sdk.rpc.TypeMarketRpc;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.BoutiqueEntranceRecordDto;
 import com.dili.ia.domain.dto.BoutiqueFeeOrderDto;
 import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
+import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.BoutiqueEntranceRecordMapper;
 import com.dili.ia.rpc.UidRpcResolver;
@@ -16,12 +19,7 @@ import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.ChargeItemEnum;
-import com.dili.settlement.enums.EnableEnum;
-import com.dili.settlement.enums.LinkTypeEnum;
-import com.dili.settlement.enums.SettleStateEnum;
-import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.enums.*;
 import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -88,6 +86,8 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
 
     @Autowired
     private BoutiqueFreeSetsService boutiqueFreeSetsService;
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -338,8 +338,16 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setChargeItemId(ChargeItemEnum.精品黄楼停车费.getId());
-        sfItem.setChargeItemName(ChargeItemEnum.精品黄楼停车费.getName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(feeOrder.getMarketId(), BizTypeEnum.BOUTIQUE_ENTRANCE.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.BOUTIQUE_ENTRANCE.getEnName());
+        BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
+        if (null == chargeItemDto){
+            logger.info("业务没有查询到固定的收费项，code={}", BizTypeEnum.BOUTIQUE_ENTRANCE.getEnName());
+            throw new BusinessException(ResultCode.DATA_ERROR, "业务没有查询到固定的收费项");
+        }
+        //静态收费项来源于基础数据中心收费项配置
+        sfItem.setChargeItemId(chargeItemDto.getId());
+        //静态收费项名称
+        sfItem.setChargeItemName(chargeItemDto.getChargeItem());
         sfItem.setAmount(paymentOrder.getAmount());
         settleFeeItemList.add(sfItem);
         settleOrderDto.setSettleFeeItemList(settleFeeItemList);
