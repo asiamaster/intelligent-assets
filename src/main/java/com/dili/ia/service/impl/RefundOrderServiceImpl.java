@@ -624,6 +624,8 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     }
 
     @Override
+    @GlobalTransactional
+    @Transactional
     public void submitForApproval(Long id) {
         UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
         if (userTicket == null) {
