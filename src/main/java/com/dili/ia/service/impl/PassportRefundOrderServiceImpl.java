@@ -7,6 +7,7 @@ import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
+import com.dili.ia.glossary.ChargeItemCodeEnum;
 import com.dili.ia.glossary.PassportStateEnum;
 import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.CustomerAccountService;
@@ -193,10 +194,10 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(passport.getMarketId(), BizTypeEnum.PASSPORT.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.PASSPORT.getEnName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(passport.getMarketId(), BizTypeEnum.PASSPORT.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), ChargeItemCodeEnum.PASSPORT.getCode());
         BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
         if (null == chargeItemDto){
-            logger.info("业务没有查询到固定的收费项，code={}", BizTypeEnum.PASSPORT.getEnName());
+            logger.info("业务没有查询到固定的收费项，code={}", ChargeItemCodeEnum.PASSPORT.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "业务没有查询到固定的收费项");
         }
         //静态收费项来源于基础数据中心收费项配置

@@ -444,11 +444,11 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         SettleFeeItem sfItem = new SettleFeeItem();
 
         String bizType = BizTypeEnum.ELECTRICITY.getCode();
-        String code = BizTypeEnum.ELECTRICITY.getEnName();
+        String code = ChargeItemCodeEnum.ELECTRICITY.getCode();
         if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailDto.getType())) {
             // 默认电费，判断是水费则水费
             bizType = BizTypeEnum.WATER.getCode();
-            code = BizTypeEnum.WATER.getEnName();
+            code = ChargeItemCodeEnum.WATER.getCode();;
         }
         List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(meterDetailDto.getMarketId(), bizType, YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), code);
         BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);

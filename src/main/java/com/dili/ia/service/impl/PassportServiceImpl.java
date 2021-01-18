@@ -318,10 +318,10 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(passport.getMarketId(), BizTypeEnum.PASSPORT.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.PASSPORT.getEnName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(passport.getMarketId(), BizTypeEnum.PASSPORT.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), ChargeItemCodeEnum.PASSPORT.getCode());
         BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
         if (null == chargeItemDto){
-            logger.info("业务没有查询到固定的收费项，code={}", BizTypeEnum.PASSPORT.getEnName());
+            logger.info("业务没有查询到固定的收费项，code={}", ChargeItemCodeEnum.PASSPORT.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "业务没有查询到固定的收费项");
         }
         //静态收费项来源于基础数据中心收费项配置

@@ -121,10 +121,10 @@ public class DepositRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(refundOrder.getMarketId(), BizTypeEnum.DEPOSIT_ORDER.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.DEPOSIT_ORDER.getEnName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(refundOrder.getMarketId(), BizTypeEnum.DEPOSIT_ORDER.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), ChargeItemCodeEnum.DEPOSIT.getCode());
         BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
         if (null == chargeItemDto){
-            LOG.info("保证金单业务没有查询到固定的【保证金】收费项，code={}", BizTypeEnum.DEPOSIT_ORDER.getEnName());
+            LOG.info("保证金单业务没有查询到固定的【保证金】收费项，code={}", ChargeItemCodeEnum.DEPOSIT.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "保证金单业务没有查询到固定的【保证金】收费项");
         }
         //静态收费项

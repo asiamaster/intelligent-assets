@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import com.dili.ia.glossary.ChargeItemCodeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,11 +92,11 @@ public class EarnestRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, 
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(refundOrder.getMarketId(), BizTypeEnum.EARNEST.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.EARNEST.getEnName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(refundOrder.getMarketId(), BizTypeEnum.EARNEST.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), ChargeItemCodeEnum.EARNEST.getCode());
         BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
         if (null == chargeItemDto){
-            LOG.info("定金单业务没有查询到固定的【定金】收费项，code={}", BizTypeEnum.EARNEST.getEnName());
-            throw new BusinessException("定金单业务没有查询到固定的【定金】收费项，code={}", BizTypeEnum.EARNEST.getEnName());
+            LOG.info("定金单业务没有查询到固定的【定金】收费项，code={}", ChargeItemCodeEnum.EARNEST.getCode());
+            throw new BusinessException("定金单业务没有查询到固定的【定金】收费项，code={}", ChargeItemCodeEnum.EARNEST.getCode());
         }
         sfItem.setChargeItemId(chargeItemDto.getId()); //静态收费项
         sfItem.setChargeItemName(chargeItemDto.getChargeItem()); //静态收费项

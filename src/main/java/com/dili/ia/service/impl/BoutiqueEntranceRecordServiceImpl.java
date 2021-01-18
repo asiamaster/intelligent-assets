@@ -338,10 +338,10 @@ public class BoutiqueEntranceRecordServiceImpl extends BaseServiceImpl<BoutiqueE
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(feeOrder.getMarketId(), BizTypeEnum.BOUTIQUE_ENTRANCE.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.BOUTIQUE_ENTRANCE.getEnName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(feeOrder.getMarketId(), BizTypeEnum.BOUTIQUE_ENTRANCE.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), ChargeItemCodeEnum.BOUTIQUE.getCode());
         BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
         if (null == chargeItemDto){
-            logger.info("业务没有查询到固定的收费项，code={}", BizTypeEnum.BOUTIQUE_ENTRANCE.getEnName());
+            logger.info("业务没有查询到固定的收费项，code={}", ChargeItemCodeEnum.BOUTIQUE.getCode());
             throw new BusinessException(ResultCode.DATA_ERROR, "业务没有查询到固定的收费项");
         }
         //静态收费项来源于基础数据中心收费项配置
