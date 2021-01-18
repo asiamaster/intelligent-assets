@@ -894,6 +894,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
 
 	@Override
 	public void doUpdatedHandlerV1(RefundOrderDto refundOrder) {
+		UserTicket userTicket = SessionContext.getSessionContext().getUserTicket();
 		RefundOrder refundOrderDto = get(refundOrder.getId());
         SpringUtil.copyPropertiesIgnoreNull(refundOrder, refundOrderDto);
         //获取业务service,调用业务实现
@@ -911,6 +912,7 @@ public class RefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> i
     		refundFeeItemService.batchUpdateSelective(refundFeeItems);
         }
         doUpdatedHandler(refundOrderDto);
+        LoggerUtil.buildLoggerContext(refundOrderDto.getId(), refundOrderDto.getCode(), userTicket.getId(), userTicket.getRealName(), userTicket.getFirmId(), null);
 	}
 	
 	

@@ -89,7 +89,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 				throw new BusinessException(ResultCode.DATA_ERROR, "入库失败");
 			}
 			//入库流水记录
-			buildStockRecord(stockInDetail.getWeight(), stockInDetail.getQuantity(), stockInDetail.getCode(), stock,StockRecordTypeEnum.STOCK_IN);
+			buildStockRecord(stockInDetail.getWeight(), stockInDetail.getQuantity(), stockInDetail.getCode(), stock,StockRecordTypeEnum.STOCK_IN,stockIn.getStockInDate().toLocalDate());
 		}
 		
 	}
@@ -138,7 +138,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		}
 	}
 	
-	private void buildStockRecord(Long weight,Long quantity,String businessCode,Stock stock,StockRecordTypeEnum type) {
+	private void buildStockRecord(Long weight,Long quantity,String businessCode,Stock stock,StockRecordTypeEnum type,LocalDate operationDay) {
 		StockRecord record = new StockRecord();
 		record.setType(type.getCode());
 		record.setWeight(weight);
@@ -148,7 +148,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		record.setMarketId(stock.getMarketId());
 		record.setMarketCode(stock.getMarketCode());
 		record.setCreateTime(LocalDateTime.now());
-		record.setOperationDay(LocalDate.now());
+		record.setOperationDay(operationDay);
 		//计算期末库存
 		if(StockRecordTypeEnum.STOCK_IN == type) {
 			record.setStockQuantity(stock.getQuantity()+quantity);
@@ -204,7 +204,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 		stockOut.setNotes(notes);
 		stockOutService.insertSelective(stockOut);
 		//出库流水记录
-		buildStockRecord(weight, quantity, code, stock,StockRecordTypeEnum.STOCK_OUT);
+		buildStockRecord(weight, quantity, code, stock,StockRecordTypeEnum.STOCK_OUT,LocalDate.now());
 		return stockOut;
 	}
 
@@ -213,7 +213,7 @@ public class StockServiceImpl extends BaseServiceImpl<Stock, Long> implements St
 	public void stockDeduction(StockInDetail detail,Long customerId,String businessCode) {
 		Stock stock = getStock(detail.getCategoryId(), detail.getAssetsId(), customerId);
 		stockDeduction(stock, detail.getWeight(), detail.getQuantity());
-		buildStockRecord(detail.getWeight(), detail.getQuantity(), businessCode, stock, StockRecordTypeEnum.STOCK_CANCEL);
+		buildStockRecord(detail.getWeight(), detail.getQuantity(), businessCode, stock, StockRecordTypeEnum.STOCK_CANCEL,LocalDate.now());
 	}
 	
 	

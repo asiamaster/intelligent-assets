@@ -1,17 +1,21 @@
 package com.dili.ia.domain.dto.printDto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class LeaseOrderPrintDto {
     //打印时间
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JSONField(format="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDate printTime;
+    private LocalDateTime printTime;
     //补打标记
     private String reprint;
     //订单编号
@@ -24,10 +28,12 @@ public class LeaseOrderPrintDto {
     private String customerCellphone;
     //开始日期
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @JSONField(format="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startTime;
     //结束日期
     @JsonFormat(pattern = "yyyy-MM-dd")
+    @JSONField(format="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endTime;
     //是否续签(1:是 2：否)
@@ -67,11 +73,11 @@ public class LeaseOrderPrintDto {
     //管理员
     private String manager;
 
-    public LocalDate getPrintTime() {
+    public LocalDateTime getPrintTime() {
         return printTime;
     }
 
-    public void setPrintTime(LocalDate printTime) {
+    public void setPrintTime(LocalDateTime printTime) {
         this.printTime = printTime;
     }
 

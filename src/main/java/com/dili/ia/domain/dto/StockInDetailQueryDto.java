@@ -49,6 +49,7 @@ public class StockInDetailQueryDto extends BaseDomain{
 	 * 品类
 	 */
 	private Long categoryId;
+	private Long customerId;
 	
 	private String customerName;
 	
@@ -230,6 +231,14 @@ public class StockInDetailQueryDto extends BaseDomain{
 
 	public void setFirstDistrictId(Long firstDistrictId) {
 		this.firstDistrictId = firstDistrictId;
+	}
+
+	public Long getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(Long customerId) {
+		this.customerId = customerId;
 	}
 
 	
