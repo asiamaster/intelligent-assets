@@ -71,6 +71,7 @@
             width: '80%',//宽度
             height: '95%',//高度
             isIframe: true,//默认是页面层，非iframe
+            closeBtn: true,
             btns: [{label: '取消',className: 'btn-secondary',onClick(e, $iframe){
 
                 }

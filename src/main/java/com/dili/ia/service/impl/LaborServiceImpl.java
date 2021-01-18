@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.record.PageBreakRecord.Break;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,10 +60,13 @@ import com.dili.settlement.enums.SettleWayEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
+import com.dili.ss.dto.DTOUtils;
 import com.dili.ss.exception.BusinessException;
 import com.dili.ss.util.DateUtils;
 import com.dili.ss.util.MoneyUtils;
+import com.dili.uap.sdk.domain.DataDictionaryValue;
 import com.dili.uap.sdk.domain.UserTicket;
+import com.dili.uap.sdk.rpc.DataDictionaryRpc;
 import com.dili.uap.sdk.rpc.DepartmentRpc;
 import com.dili.uap.sdk.session.SessionContext;
 
@@ -112,6 +116,9 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 	
 	@Autowired
 	private MsgService msgService;
+	
+	@Autowired
+	private DataDictionaryRpc dataDictionaryRpc;
 
 	@Value("${settlement.app-id}")
 	private Long settlementAppId;
@@ -418,10 +425,15 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		String workCard	= buildVestCode(labor.getMarketCode(), labor.getModels());
 		domain.setLicensePlate(workCard);
 		domain.setWorkCard(workCard);
-		if (LocalDateTime.now().isAfter(labor.getStartDate())) {
-			update(domain, code, labor.getVersion(), LaborStateEnum.IN_EFFECTIVE);
-		} else {
-			update(domain, code, labor.getVersion(), LaborStateEnum.NOT_STARTED);
+		
+		if(LocalDateTime.now().isBefore(labor.getEndDate())) {
+			update(domain, code, labor.getVersion(), LaborStateEnum.EXPIRED);
+		}else {
+			if (LocalDateTime.now().isAfter(labor.getStartDate())) {
+				update(domain, code, labor.getVersion(), LaborStateEnum.IN_EFFECTIVE);
+			} else {
+				update(domain, code, labor.getVersion(), LaborStateEnum.NOT_STARTED);
+			}
 		}
 		
 		// 获取更名 更型单信息
@@ -590,6 +602,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		SettleOrder order = settlementRpcResolver.get(settlementAppId, orderCode);
 		LaborPayPrintDto laborPrintDto = new LaborPayPrintDto();
 		laborPrintDto.setCode(labor.getCode());
+		laborPrintDto.setSettleCode(order.getCode());
 		laborPrintDto.setPrintTime(LocalDateTime.now());
 		laborPrintDto.setReprint("2".equals(reprint) ? "(补打)" : "");
 
@@ -610,7 +623,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
         if (SettleWayEnum.CARD.getCode() == order.getWay()) {
             // 园区卡支付
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【卡号：" + order.getTradeCardNo() +
-                    "（" + order.getCustomerName() + "）】";
+                    "（" + order.getTradeCustomerName() + "）】";
         } else {
             settleDetails = "付款方式：" + SettleWayEnum.getNameByCode(order.getWay()) + "     【流水号：" + (StringUtils.isEmpty(order.getSerialNumber())?"--":order.getSerialNumber()) + "  备注："
                     + (StringUtils.isEmpty(order.getNotes())?"--":order.getNotes()) + "】";
@@ -731,7 +744,7 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 			SettleFeeItem settleFeeItem = new SettleFeeItem();
 			settleFeeItem.setChargeItemId(item.getChargeItemId());
 			settleFeeItem.setChargeItemName(item.getChargeItemName());
-			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItem.setAmount(item.getAmount());
 			settleFeeItemList.add(settleFeeItem);
 		}
 		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);
@@ -741,5 +754,11 @@ public class LaborServiceImpl extends BaseServiceImpl<Labor, Long> implements La
 		return settleOrderInfoDto;
 	}
 
-	
+	private void getdd(Long firmId) {
+		DataDictionaryValue dto = DTOUtils.newInstance(DataDictionaryValue.class);
+        dto.setDdCode("labor_car_type");
+        dto.setFirmId(firmId);
+        List<DataDictionaryValue> list = dataDictionaryRpc.listDataDictionaryValue(dto).getData();
+       
+	}
 }

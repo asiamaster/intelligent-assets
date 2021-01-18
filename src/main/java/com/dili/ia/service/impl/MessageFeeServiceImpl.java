@@ -446,7 +446,7 @@ public class MessageFeeServiceImpl extends BaseServiceImpl<MessageFee, Long> imp
 			SettleFeeItem settleFeeItem = new SettleFeeItem();
 			settleFeeItem.setChargeItemId(item.getChargeItemId());
 			settleFeeItem.setChargeItemName(item.getChargeItemName());
-			settleFeeItem.setAmount(item.getPaymentAmount());
+			settleFeeItem.setAmount(item.getAmount());
 			settleFeeItemList.add(settleFeeItem);
 		}
 		settleOrderInfoDto.setSettleFeeItemList(settleFeeItemList);

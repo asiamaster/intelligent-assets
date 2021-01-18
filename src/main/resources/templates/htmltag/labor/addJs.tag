@@ -17,13 +17,15 @@
         let formData = $("input:not(table input),textarea,select").serializeObject();
         let departmentName = $('#departmentId').find("option:selected").text();
     	formData.departmentName = departmentName;
+    	formData.endDate = formData.endDate+" 23:59:59";
         // 动态收费项
     	let businessChargeDtos = []
     	$('#saveForm').find('.chargeItem').each(function(){
     		let businessCharge = {};
     		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
     		businessCharge.chargeItemName=$(this).attr("chargeItem");
-    		businessCharge.amount=parseInt($(this).val())*100;
+    		businessCharge.amount=parseFloat($(this).val())*100;
+    		businessCharge.paymentAmount=parseFloat($(this).val())*100;
     		if($(this).attr("item-id") != ""){
     			businessCharge.id=$(this).attr("item-id");
     			businessCharge.version=$(this).attr("chargeItem-version");
@@ -89,7 +91,7 @@ $(document).on('change', '.chargeItem', function() {
 function count(){
 	let total = 0;
 	$('#saveForm').find('.chargeItem').each(function(){
-		total = parseInt(total) + parseInt($(this).val());
+		total = parseFloat(total) + parseFloat($(this).val());
 	})
 	$('#amount').val(total);
 }
@@ -100,7 +102,7 @@ function changeEndDay(interval,date){
 		$('#endDate').val(null);
 		return;
 	}
-	$('#endDate').val(moment(date).add('month', interval).format('YYYY-MM-DD'));
+	$('#endDate').val(moment(date).add('month', interval).add('day',-1).format('YYYY-MM-DD'));
 	getCost();
 }
 
@@ -154,6 +156,7 @@ $(function () {
 		$(".chargeItem").removeAttr("readonly");
 		if(type == "rename"){
 			$('#customerName').removeAttr("readonly");
+			$('#_certificateNumber').removeAttr("readonly");
 		}
 		setTimeout(function(){ getCost(); }, 1000);
 	}
@@ -174,6 +177,13 @@ function getCost(){
 	detail.startDate=$('#startDate').val();
 	detail.endDate=$('#endDate').val();
 	if(strIsEmpty(detail.laborType) || strIsEmpty(detail.models) || strIsEmpty(detail.startDate) || strIsEmpty(detail.endDate)){
+		return;
+	}
+	if(detail.startDate >= detail.endDate){
+		bs4pop.alert("结束时间不能小于开始时间", {
+			type: 'error'
+		});
+		$('#endDate').val(null);
 		return;
 	}
 	// 动态收费项

@@ -23,7 +23,8 @@
     		let businessCharge = {};
     		businessCharge.chargeItemId=$(this).attr("name").split("_")[1];
     		businessCharge.chargeItemName=$(this).attr("chargeItem");
-    		businessCharge.amount=parseInt($(this).val())*100;
+    		businessCharge.amount=parseFloat($(this).val())*100;
+    		businessCharge.paymentAmount=parseFloat($(this).val())*100;
     		if($(this).attr("item-id") != ""){
     			businessCharge.id=$(this).attr("item-id");
     			businessCharge.version=$(this).attr("chargeItem-version");
@@ -83,11 +84,11 @@ $(document).on('change', '.chargeItem', function() {
 function count(){
 	let total = 0;
 	$('#saveForm').find('.chargeItem').each(function(){
-		total = parseInt(total) + parseInt($(this).val());
+		total = parseFloat(total) + parseFloat($(this).val());
 	})
 	$('#amount').val(total);
 	if(total > 0 ){
-		$('#payAmount').val(parseInt(total)-parseInt($("#transactionAmount").val()))
+		$('#payAmount').val(parseFloat(total)-parseFloat($("#transactionAmount").val()))
 	}
 }
 $(document).on('change', '#transactionAmount', function() {

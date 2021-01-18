@@ -407,6 +407,8 @@ _grid.on('check.bs.table', function (e, row, $element) {
         $('#toolbar button').attr('disabled', true);
     }else if (state == ${@com.dili.ia.glossary.StockInStateEnum.REFUNDED.getCode()}) {
         $('#toolbar button').attr('disabled', true);
+    }else if (state == ${@com.dili.ia.glossary.StockInStateEnum.EXPIRE.getCode()}){
+    	 $('#toolbar button').attr('disabled', true);
     }
     $('.btn_add').attr('disabled', false);
     $('.btn_view').attr('disabled', false);

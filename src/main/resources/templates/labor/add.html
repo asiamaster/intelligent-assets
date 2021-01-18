@@ -7,7 +7,7 @@
 		<input type="hidden" id="businessChargeType" name="businessChargeType" value="${businessChargeType!}" />
 		<div class="breadcrumb">
 		 客户信息
-		<%if(isNotEmpty(labor) && type != 'remodel' && type != 'renew'){%>
+		<%if(!isNotEmpty(labor) || (isNotEmpty(labor) && type != 'remodel' && type != 'renew')){%>
 			 <a href="javascript:;" class="ml-2"
 			id="getCustomer">刷身份证</a>
 		<% } %>
@@ -18,6 +18,18 @@
 			class="fa fa-angle-double-up" aria-hidden="true"></i></a>
 			</div>
 			<div class="row row-cols-4 collapse show" id="customerInfo">
+			<%if(isNotEmpty(labor) && (type == 'remodel' || type == 'renew')){%>
+				<div class="form-group col">
+					<label for="customerName">客户名称<i class="red">*</i></label>
+					<input type="hidden" name="customerId" value="${labor.customerId!}" >
+					<input type="text" class="form-control" name="customerName" value="${labor.customerName!}" >			
+				</div>
+				<div class="form-group col">
+					<label for="_certificateNumber">证件号码:<i class="red">*</i></label>
+					<input type="text" class="form-control" name="certificateNumber" value="${labor.certificateNumber!}" >	
+				</div>
+			<%}else{%>
+			
 				<div class="form-group col">
 					<label for="customerName">客户名称<i class="red">*</i></label>
 					<#bautoCompleteProvider _hiddenDomainId="customerId"
@@ -29,8 +41,15 @@
 			
 				<div class="form-group col">
 					<label for="_certificateNumber">证件号码:<i class="red">*</i></label>
-					 <#bautoCompleteProvider _log="证件号码" _hiddenDomainId="certificateNumber" _hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber" _displayDomainName="_certificateNumber" _placeholder="" _validatorMethod="isSelected"   _required="true" _optionVariable="certificateNumberAutoCompleteOption"/>
+					<#bautoCompleteProvider _log="证件号码" _hiddenDomainId="certificateNumber" 
+					_value="${labor.certificateNumber!}" _text="${labor.certificateNumber!}" 
+					_hiddenDomainName="certificateNumber" _displayDomainId="_certificateNumber"
+					_displayDomainName="_certificateNumber" _placeholder="" 
+					_validatorMethod="isSelected" _required="true" 
+					_optionVariable="certificateNumberAutoCompleteOption"/>
 				</div>
+			<%}%>
+				
 				<div class="form-group col">
 						<label for="">联系电话<i class="red">*</i></label> <input type="text"
 							class="form-control isMobile rename" id="customerCellphone"
@@ -123,7 +142,7 @@
 </div>
 <div class="row  row-cols-4 collapse show" id="moneyInfo">
 	<div class="form-group col">
-		<label for="amount" class="">合计金额<i class="red">*</i></label> <input
+		<label for="amount" class="">合计金额<i class="red">*</i></label> <input readonly
 			id="amount" type="number" class="form-control floatReserve money renew"
 			 name="amount" value = "<#centToYuan value='${labor.amount!0}'/>" range="0 9999999.99" required />
 	</div>
@@ -131,7 +150,7 @@
 <div class="row">
 	<div class="form-group col-8">
 		<label for="notes">备注</label>
-		<textarea id="notes" class="form-control renew remodel rename" name="notes" rows="1"
+		<textarea id="notes" class="form-control renew remodel rename" name="notes" rows="2"
 			maxlength="100">${labor.notes!}</textarea>
 	</div>
 </div>

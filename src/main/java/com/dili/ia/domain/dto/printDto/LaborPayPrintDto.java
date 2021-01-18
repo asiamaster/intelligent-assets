@@ -57,6 +57,8 @@ public class LaborPayPrintDto {
 	private String cardNo;
 	// 备注信息
 	private String notes;
+	// 结算编号
+	private String settleCode;
 	
 	private String settleWayDetails;
 
@@ -161,6 +163,12 @@ public class LaborPayPrintDto {
 	}
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+	public String getSettleCode() {
+		return settleCode;
+	}
+	public void setSettleCode(String settleCode) {
+		this.settleCode = settleCode;
 	}
 
 	
