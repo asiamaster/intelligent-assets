@@ -12,8 +12,6 @@ import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.RefundOrderDispatcherService;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.enums.ChargeItemEnum;
-import com.dili.settlement.enums.FeeTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;

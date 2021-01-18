@@ -3,7 +3,6 @@ package com.dili.ia.service.impl;
 import com.dili.ia.domain.OtherFee;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.printDto.OtherFeePrintDto;
-import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.OtherFeeStateEnum;
@@ -16,8 +15,6 @@ import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.enums.ChargeItemEnum;
-import com.dili.settlement.enums.FeeTypeEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -29,11 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class OtherFeeRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> implements RefundOrderDispatcherService {
