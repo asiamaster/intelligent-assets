@@ -30,6 +30,16 @@ public interface BusinessChargeItemService extends BaseService<BusinessChargeIte
      * @return
      */
     List<BusinessChargeItemDto> queryBusinessChargeItemConfig(Long marketId, String bizType, Integer isEnable);
+    /**
+     * 查询业务所配置的收费项
+     * @param marketId 上次ID
+     * @param bizType 业务类型
+     * @param isEnable 是否可用 {@link com.dili.commons.glossary.YesOrNoEnum}
+     * @param fixed 是否固定收费项 {@link com.dili.commons.glossary.YesOrNoEnum}
+     * @param code 收费项code
+     * @return
+     */
+    public List<BusinessChargeItemDto> queryFixedBusinessChargeItemConfig(Long marketId, String bizType, Integer isEnable, Integer fixed, String code);
 
     /**
      * 查询业务资产项的所产生的收费项元信息

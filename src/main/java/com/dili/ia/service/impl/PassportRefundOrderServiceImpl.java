@@ -1,13 +1,14 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.BoutiqueFeeOrder;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.RefundOrder;
-import com.dili.ia.domain.dto.printDto.BoutiqueEntrancePrintDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
 import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
 import com.dili.ia.glossary.PassportStateEnum;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.CustomerAccountService;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.service.RefundOrderDispatcherService;
@@ -17,7 +18,6 @@ import com.dili.logger.sdk.component.MsgService;
 import com.dili.logger.sdk.domain.BusinessLog;
 import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
-import com.dili.settlement.enums.ChargeItemEnum;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
 import com.dili.ss.domain.BaseOutput;
@@ -29,11 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 @Service
 public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder, Long> implements RefundOrderDispatcherService {
 
@@ -47,6 +43,8 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
 
     @Autowired
     private CustomerAccountService customerAccountService;
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
 
     /**
      * 退款单 -- 提交(无需改变通行证缴费单的状态)
@@ -195,8 +193,16 @@ public class PassportRefundOrderServiceImpl extends BaseServiceImpl<RefundOrder,
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setChargeItemId(ChargeItemEnum.通行费.getId());
-        sfItem.setChargeItemName(ChargeItemEnum.通行费.getName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(passport.getMarketId(), BizTypeEnum.PASSPORT.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.PASSPORT.getEnName());
+        BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
+        if (null == chargeItemDto){
+            logger.info("业务没有查询到固定的收费项，code={}", BizTypeEnum.PASSPORT.getEnName());
+            throw new BusinessException(ResultCode.DATA_ERROR, "业务没有查询到固定的收费项");
+        }
+        //静态收费项来源于基础数据中心收费项配置
+        sfItem.setChargeItemId(chargeItemDto.getId());
+        //静态收费项名称
+        sfItem.setChargeItemName(chargeItemDto.getChargeItem());
         sfItem.setAmount(refundOrder.getTotalRefundAmount());
         settleFeeItemList.add(sfItem);
 

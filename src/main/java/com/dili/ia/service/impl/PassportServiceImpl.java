@@ -1,22 +1,22 @@
 package com.dili.ia.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
 import com.dili.assets.sdk.dto.TypeMarketDto;
 import com.dili.assets.sdk.rpc.TypeMarketRpc;
+import com.dili.commons.glossary.YesOrNoEnum;
 import com.dili.ia.domain.Passport;
 import com.dili.ia.domain.PaymentOrder;
 import com.dili.ia.domain.RefundOrder;
 import com.dili.ia.domain.dto.PassportDto;
 import com.dili.ia.domain.dto.PassportRefundOrderDto;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.PassportPrintDto;
-import com.dili.ia.glossary.BizNumberTypeEnum;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.PassportStateEnum;
-import com.dili.ia.glossary.PaymentOrderStateEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.PassportMapper;
 import com.dili.ia.rpc.UidRpcResolver;
+import com.dili.ia.service.BusinessChargeItemService;
 import com.dili.ia.service.PassportService;
 import com.dili.ia.service.PaymentOrderService;
 import com.dili.ia.service.RefundOrderService;
@@ -24,12 +24,7 @@ import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.ChargeItemEnum;
-import com.dili.settlement.enums.EnableEnum;
-import com.dili.settlement.enums.LinkTypeEnum;
-import com.dili.settlement.enums.SettleStateEnum;
-import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.enums.*;
 import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -86,6 +81,8 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
 
     @Autowired
     private RefundOrderService refundOrderService;
+    @Autowired
+    private BusinessChargeItemService businessChargeItemService;
 
     @Value("${settlement.app-id}")
     private Long settlementAppId;
@@ -318,12 +315,19 @@ public class PassportServiceImpl extends BaseServiceImpl<Passport, Long> impleme
         settleOrderLinkList.add(print);
         settleOrderLinkList.add(callBack);
         settleOrderDto.setSettleOrderLinkList(settleOrderLinkList);
-
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setChargeItemId(ChargeItemEnum.通行费.getId());
-        sfItem.setChargeItemName(ChargeItemEnum.通行费.getName());
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(passport.getMarketId(), BizTypeEnum.PASSPORT.getCode(), YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), BizTypeEnum.PASSPORT.getEnName());
+        BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
+        if (null == chargeItemDto){
+            logger.info("业务没有查询到固定的收费项，code={}", BizTypeEnum.PASSPORT.getEnName());
+            throw new BusinessException(ResultCode.DATA_ERROR, "业务没有查询到固定的收费项");
+        }
+        //静态收费项来源于基础数据中心收费项配置
+        sfItem.setChargeItemId(chargeItemDto.getId());
+        //静态收费项名称
+        sfItem.setChargeItemName(chargeItemDto.getChargeItem());
         sfItem.setAmount(paymentOrder.getAmount());
         settleFeeItemList.add(sfItem);
         settleOrderDto.setSettleFeeItemList(settleFeeItemList);

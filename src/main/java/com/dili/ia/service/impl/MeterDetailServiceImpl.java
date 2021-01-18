@@ -1,28 +1,17 @@
 package com.dili.ia.service.impl;
 
-import com.dili.ia.domain.BusinessChargeItem;
-import com.dili.ia.domain.CustomerMeter;
-import com.dili.ia.domain.Meter;
-import com.dili.ia.domain.MeterDetail;
-import com.dili.ia.domain.PaymentOrder;
+import com.dili.assets.sdk.dto.BusinessChargeItemDto;
+import com.dili.commons.glossary.YesOrNoEnum;
+import com.dili.ia.domain.*;
 import com.dili.ia.domain.dto.MeterDetailDto;
 import com.dili.ia.domain.dto.MeterDto;
-import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.domain.dto.printDto.MeterDetailPrintDto;
-import com.dili.ia.glossary.AssetsTypeEnum;
+import com.dili.ia.domain.dto.printDto.PrintDataDto;
 import com.dili.ia.glossary.BizTypeEnum;
-import com.dili.ia.glossary.CustomerMeterStateEnum;
-import com.dili.ia.glossary.MeterDetailStateEnum;
-import com.dili.ia.glossary.MeterTypeEnum;
-import com.dili.ia.glossary.PaymentOrderStateEnum;
-import com.dili.ia.glossary.PrintTemplateEnum;
+import com.dili.ia.glossary.*;
 import com.dili.ia.mapper.MeterDetailMapper;
 import com.dili.ia.rpc.UidRpcResolver;
-import com.dili.ia.service.BusinessChargeItemService;
-import com.dili.ia.service.CustomerMeterService;
-import com.dili.ia.service.MeterDetailService;
-import com.dili.ia.service.MeterService;
-import com.dili.ia.service.PaymentOrderService;
+import com.dili.ia.service.*;
 import com.dili.rule.sdk.domain.input.QueryFeeInput;
 import com.dili.rule.sdk.domain.output.QueryFeeOutput;
 import com.dili.rule.sdk.rpc.ChargeRuleRpc;
@@ -30,12 +19,7 @@ import com.dili.settlement.domain.SettleFeeItem;
 import com.dili.settlement.domain.SettleOrder;
 import com.dili.settlement.domain.SettleOrderLink;
 import com.dili.settlement.dto.SettleOrderDto;
-import com.dili.settlement.enums.ChargeItemEnum;
-import com.dili.settlement.enums.EnableEnum;
-import com.dili.settlement.enums.LinkTypeEnum;
-import com.dili.settlement.enums.SettleStateEnum;
-import com.dili.settlement.enums.SettleTypeEnum;
-import com.dili.settlement.enums.SettleWayEnum;
+import com.dili.settlement.enums.*;
 import com.dili.settlement.rpc.SettleOrderRpc;
 import com.dili.ss.base.BaseServiceImpl;
 import com.dili.ss.constant.ResultCode;
@@ -64,12 +48,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author:      xiaosa
@@ -89,6 +68,7 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
     @Autowired
     private MeterService meterService;
 
+    @SuppressWarnings("all")
     @Autowired
     private DepartmentRpc departmentRpc;
 
@@ -462,13 +442,25 @@ public class MeterDetailServiceImpl extends BaseServiceImpl<MeterDetail, Long> i
         //组装费用项
         List<SettleFeeItem> settleFeeItemList = new ArrayList<>();
         SettleFeeItem sfItem = new SettleFeeItem();
-        sfItem.setChargeItemId(ChargeItemEnum.电费.getId());
-        sfItem.setChargeItemName(ChargeItemEnum.电费.getName());
+
+        String bizType = BizTypeEnum.ELECTRICITY.getCode();
+        String code = BizTypeEnum.ELECTRICITY.getEnName();
         if (MeterTypeEnum.WATER_METER.getCode().equals(meterDetailDto.getType())) {
             // 默认电费，判断是水费则水费
-            sfItem.setChargeItemId(ChargeItemEnum.水费.getId());
-            sfItem.setChargeItemName(ChargeItemEnum.水费.getName());
+            bizType = BizTypeEnum.WATER.getCode();
+            code = BizTypeEnum.WATER.getEnName();
         }
+        List<BusinessChargeItemDto> chargeItemDtos = businessChargeItemService.queryFixedBusinessChargeItemConfig(meterDetailDto.getMarketId(), bizType, YesOrNoEnum.YES.getCode(), YesOrNoEnum.YES.getCode(), code);
+        BusinessChargeItemDto chargeItemDto = chargeItemDtos.stream().findFirst().orElse(null);
+        if (null == chargeItemDto){
+            logger.info("业务没有查询到固定的收费项，code={}", code);
+            throw new BusinessException(ResultCode.DATA_ERROR, "业务没有查询到固定的收费项");
+        }
+        //静态收费项来源于基础数据中心收费项配置
+        sfItem.setChargeItemId(chargeItemDto.getId());
+        //静态收费项名称
+        sfItem.setChargeItemName(chargeItemDto.getChargeItem());
+
         sfItem.setAmount(paymentOrder.getAmount());
         settleFeeItemList.add(sfItem);
         settleOrderDto.setSettleFeeItemList(settleFeeItemList);
